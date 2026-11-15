@@ -59,6 +59,6 @@ The analysis code and the text were developed with the assistance of an AI model
 
 ## How to cite
 
-Lettieri, P. A. (2026). *Space created by events instead of dark energy: a source–sink cosmological model confronted with the data* Zenodo. https://doi.org/10.5281/zenodo.24250555 (all versions; v1.0: https://doi.org/10.5281/zenodo.24250556)
+Lettieri, P. A. (2026). *Space created by events instead of dark energy: a source–sink cosmological model confronted with the data*. Zenodo. https://doi.org/10.5281/zenodo.24250555 (all versions; v1.0: https://doi.org/10.5281/zenodo.24250556)
 
 See also [CITATION.cff](CITATION.cff).
