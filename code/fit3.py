@@ -1,6 +1,6 @@
-"""Modello sorgente-pozzo con bilancio dell'energia coerente (vuoto interagente),
-confronto con Pantheon+ (SN), DESI DR2 (BAO) e prior compressi Planck 2018 (CMB).
-Unita': densita' fisiche omega = Omega*h^2, H in unita' di 100 km/s/Mpc, tempo in 9.778 Gyr."""
+"""Source-sink model with a consistent energy budget (interacting vacuum),
+compared with Pantheon+ (SN), DESI DR2 (BAO) and compressed Planck 2018 priors (CMB).
+Units: physical densities omega = Omega*h^2, H in units of 100 km/s/Mpc, time in 9.778 Gyr."""
 import numpy as np, math, json, sys
 from scipy.optimize import minimize
 from scipy.interpolate import interp1d
@@ -11,16 +11,16 @@ D=os.path.join(HERE,'data')+os.sep; CK=2997.92458; TU=9.7779
 import os as _os
 SNSET=_os.environ.get('SNSET','pantheon')     # pantheon | union3 | desy5 | dovekie
 def _load_sn(name):
-    """Ritorna z (cosmologico), z eliocentrico, magnitudini o moduli di distanza, inversa della covarianza."""
+    """Returns z (cosmological), heliocentric z, magnitudes or distance moduli, inverse covariance."""
     S=D+'sn/'
     if name=='pantheon':
         rows=[l.split() for l in open(D+'pp.dat')]; h_=rows[0]; rows=rows[1:]
         col=lambda n: np.array([float(r[h_.index(n)]) for r in rows])
         zhd=col('zHD'); mb=col('m_b_corr'); zhel=col('zHEL')
         cov=np.loadtxt(D+'pp.cov',skiprows=1).reshape(1701,1701)
-        msk=(zhd>0.01)   # selezione ufficiale Pantheon+ senza SH0ES: 1590 supernovae
+        msk=(zhd>0.01)   # official Pantheon+ selection without SH0ES: 1590 supernovae
         return zhd[msk],zhel[msk],mb[msk],np.linalg.inv(cov[np.ix_(msk,msk)])
-    if name=='union3':     # 22 intervalli di redshift (Rubin et al. 2023)
+    if name=='union3':     # 22 redshift bins (Rubin et al. 2023)
         d=np.loadtxt(S+'Union3/lcparam_full.txt',usecols=(1,2,4)); c=np.loadtxt(S+'Union3/mag_covmat.txt',skiprows=1).reshape(22,22)
         return d[:,0],d[:,1],d[:,2],np.linalg.inv(c)
     if name=='desy5':      # DES-SN5YR, 1829 supernovae
@@ -28,7 +28,7 @@ def _load_sn(name):
         if not _os.path.exists(f): np.save(f,np.loadtxt(S+'DESY5/covsys_000.txt',skiprows=1).reshape(len(d),len(d)))
         c=np.load(f)+np.diag(d['MUERR_FINAL']**2)
         return d['zHD'],d['zHEL'],d['MU'],np.linalg.inv(c)
-    if name=='dovekie':    # DES ricalibrato (DES-Dovekie), 1820 supernovae; il file contiene gia' l'inversa della covarianza totale
+    if name=='dovekie':    # recalibrated DES (DES-Dovekie), 1820 supernovae; the file already contains the inverse of the total covariance
         d=np.genfromtxt(S+'DES-Dovekie/DES-Dovekie_HD.csv',delimiter=',',names=True); n=len(d)
         p=np.load(S+'DES-Dovekie/covtot_inv_000.npz')['cov']; ci=np.zeros((n,n)); ci[np.triu_indices(n)]=p; ci=ci+ci.T-np.diag(np.diag(ci))
         return d['zHD'],d['zHEL'],d['MU'],ci
@@ -40,7 +40,7 @@ for l in open(D+'desi_mean.txt'):
     if l[0]=='#':continue
     a=l.split(); bz.append(float(a[0]));bv.append(float(a[1]));bt.append(a[2])
 bz=np.array(bz);bv=np.array(bv);bCi=np.linalg.inv(np.loadtxt(D+'desi_cov.txt'))
-# Prior di distanza Planck 2018 (Chen, Huang & Wang 2019): R, l_a, omega_b
+# Planck 2018 distance priors (Chen, Huang & Wang 2019): R, l_a, omega_b
 cm=np.array([1.7502,301.471,0.02236]); cs_=np.array([0.0046,0.090,0.00015])
 cc=np.array([[1,0.46,-0.66],[0.46,1,-0.33],[-0.66,-0.33,1]]); cCi=np.linalg.inv(cc*np.outer(cs_,cs_))
 OR=4.184e-5; ZMAX=30.0; NU=300
@@ -64,7 +64,7 @@ def past_interacting(wm,al,ga,n,kind):
     o=np.array(out); z=np.expm1(U)
     return np.sqrt(o[:,0]+OR*(1+z)**4+o[:,1]), o
 def observables(e_u,wm,wb,rd=None):
-    """e_u = H/100 sulla griglia U (z da 30 a 0)."""
+    """e_u = H/100 on the U grid (z from 30 to 0)."""
     eu=interp1d(U[::-1],e_u[::-1],kind='cubic'); hh=float(e_u[-1])
     zg=np.concatenate([[0],np.expm1(np.linspace(math.log(1.0005),math.log(1+ZMAX),900))])
     ie=1/eu(np.log1p(zg)); I=np.concatenate([[0],np.cumsum(np.diff(zg)*(ie[1:]+ie[:-1])/2)])
@@ -76,7 +76,7 @@ def observables(e_u,wm,wb,rd=None):
     Rb=lambda z: 31500*wb*(2.7255/2.7)**-4/(1+z)
     rs=quad(lambda a: 1/(a*a*eh(1/a-1)*math.sqrt(3*(1+Rb(1/a-1)))),0,1/(1+zst),epsabs=1e-12)[0]
     cmb=np.array([math.sqrt(wm)*Ist, math.pi*Ist/rs, wb])
-    if rd is None: rd=147.05*(wb/0.02236)**-0.13*(wm/0.1432)**-0.23   # formula DESI; con omega_m totale riproduce CAMB entro 0,05%
+    if rd is None: rd=147.05*(wb/0.02236)**-0.13*(wm/0.1432)**-0.23   # DESI formula; with total omega_m it reproduces CAMB to within 0.05%
     q=CK/rd
     th=np.array([q*DM(z) if t.startswith('DM') else q*ie_at(eu,z) if t.startswith('DH') else q*(z*DM(z)**2*ie_at(eu,z))**(1/3) for z,t in zip(bz,bt)])
     r=bv-th; cb=float(r@bCi@r)
@@ -86,7 +86,7 @@ def observables(e_u,wm,wb,rd=None):
 def ie_at(eu,z): return 1/float(eu(math.log1p(z)))
 def e_fluid(wm,wx,w0=-1.0,wa=0.0):
     z=np.expm1(U); return np.sqrt(wm*(1+z)**3+OR*(1+z)**4+wx*(1+z)**(3*(1+w0+wa))*np.exp(-3*wa*z/(1+z)))
-# ---- definizione modelli: p -> (e_u, wm_early, wb, extra)
+# ---- model definitions: p -> (e_u, wm_early, wb, extra)
 def M_lcdm(p): return e_fluid(p[0],p[2]),p[0],p[1],None
 def M_w0wa(p): return e_fluid(p[0],p[2],p[3],p[4]),p[0],p[1],None
 def M_int(n,kind):
@@ -119,7 +119,7 @@ def fitmodel(mk,starts,fixed=None):
         if best is None or r.fun<best.fun: best=r
     return best
 def future(p,n,kind,o,hh,tmax=60,efold_gyr=None):
-    """Integra avanti nel tempo attraverso l'inversione. Attivita' stellare futura: decadimento esponenziale con il ritmo attuale."""
+    """Integrates forward in time through the turnaround. Future stellar activity: exponential decay at the current rate."""
     al=math.exp(p[2]); ga=math.exp(p[3]); m0,x0,M0=o[-1]; k=2.7*hh if efold_gyr is None else TU/efold_gyr
     def f(t,y):
         a,v,m,x,M=y; ps=PS0*math.exp(-k*t)

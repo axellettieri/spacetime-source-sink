@@ -33,7 +33,7 @@ The model turns this idea into two terms inside general relativity:
 | `paper/articolo_it.md` | The article (Italian, original version) |
 | `code/` | All scripts: data fits, full Planck with CAMB, MCMC, GPU N-body simulations, graph experiments (`code/grafo/`) |
 
-How to run the code is described in [`code/README.md`](code/README.md) (English) and `code/LEGGIMI.txt` (Italian). Script names and comments are in Italian.
+How to run the code is described in [`code/README.md`](code/README.md) (English) and `code/LEGGIMI.txt` (Italian). Comments and screen output are in English; file and variable names are in Italian, with a glossary in `code/README.md`.
 
 Quick start:
 

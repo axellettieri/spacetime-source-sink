@@ -1,5 +1,5 @@
 #!/bin/bash
-# Catena completa su GPU. Ogni corsa salva lo stato ogni 100 passi: se si interrompe, rilanciare questo script e riprende.
+# Full chain on GPU. Each run saves its state every 100 steps: if interrupted, rerun this script and it resumes.
 set -e
 N=${N:-512}; L=${L:-1000}; P=${P:-600}
 [ -f orologio.json ]   || python universo3d.py orologio --np $N --ng $N --L $L --passi $P --xinit 0.3107 --dc 20 --soglie 1.5,2,3,5,10

@@ -1,18 +1,18 @@
-"""Esperimento 8: l'accorciamento di un oggetto in moto, quando la sua forma e' tenuta da segnali.
-Stessa rete casuale dell'esperimento 7: un lampo si allarga di un legame per passo in tutte le direzioni,
-senza usare coordinate.
-Oggetto: tre marcatori A, B, C.
-- C sta di traverso rispetto al moto, a distanza fissa Lp da A: e' l'unita' di misura dell'oggetto.
-  (Una scala di riferimento serve comunque: negli oggetti reali la fissano gli atomi. In relativita' le
-  lunghezze di traverso al moto non cambiano.)
-- B sta lungo il moto e la sua distanza NON e' imposta: B si mette dove l'andata e ritorno di un lampo A->B->A
-  dura quanto quella A->C->A. E' la "regola del radar": l'oggetto resta rigido se i suoi tempi interni
-  restano uguali in tutte le direzioni (un interferometro di Michelson che si regola da solo).
-Lo sperimentatore sposta l'oggetto a velocita' v; le coordinate servono solo a spostarlo e a misurarlo.
-Domanda: la distanza di equilibrio A-B si accorcia col moto? La relativita' prevede il fattore sqrt(1 - v^2/c^2).
-Uso: python esperimento8.py [N punti] [tic per misura] [seme] [Lp] [velocita' v/c separate da virgole]
-Fino a 400.000 punti la rete e' costruita come nell'esperimento 7; oltre, con un metodo che usa meno memoria
-(copie dei punti solo in una fascia attorno ai bordi), cosi' si possono usare oggetti piu' grandi rispetto alla grana."""
+"""Experiment 8: the contraction of a moving object, when its shape is held by signals.
+Same random network as experiment 7: a flash spreads by one link per step in all directions,
+without using coordinates.
+Object: three markers A, B, C.
+- C sits across the motion, at fixed distance Lp from A: it is the object's unit of length.
+  (A reference scale is needed anyway: in real objects atoms set it. In relativity
+  lengths across the motion do not change.)
+- B sits along the motion and its distance is NOT imposed: B places itself where the round trip of a flash A->B->A
+  lasts as long as A->C->A. This is the "radar rule": the object stays rigid if its internal times
+  stay equal in all directions (a self-adjusting Michelson interferometer).
+The experimenter moves the object at speed v; coordinates are used only to move and measure it.
+Question: does the equilibrium distance A-B shrink with motion? Relativity predicts the factor sqrt(1 - v^2/c^2).
+Usage: python esperimento8.py [N points] [ticks per measurement] [seed] [Lp] [speeds v/c separated by commas]
+Up to 400,000 points the network is built as in experiment 7; beyond, with a method that uses less memory
+(copies of the points only in a band around the edges), so larger objects relative to the grain can be used."""
 import sys, math, time
 import numpy as np
 from scipy.sparse import csr_matrix
@@ -22,7 +22,7 @@ from esperimento7 import rete_casuale
 
 
 def rete_casuale_margine(N, rng):
-    """rete casuale su un toro: triangolazione di Delaunay con copie dei punti solo in una fascia di bordo"""
+    """random network on a torus: Delaunay triangulation with copies of the points only in an edge band"""
     P = rng.random((N, 2))
     m = 12 / math.sqrt(N)
     pts, idx = [P], [np.arange(N)]
@@ -45,7 +45,7 @@ def rete_casuale_margine(N, rng):
 
 
 class Banco:
-    """la rete casuale, il cercatore del punto piu' vicino e le misure di andata e ritorno"""
+    """the random network, the nearest-point finder and the round-trip measurements"""
 
     def __init__(self, N, seme):
         self.rng = np.random.default_rng(seme)
@@ -64,8 +64,8 @@ class Banco:
         self.ell = float(np.mean(np.linalg.norm(((P[colonne[k]] - P[righe[k]] + 0.5) % 1) - 0.5, axis=1)))
 
     def andata_ritorno(self, direzione, L, v, ntic, cap):
-        """tempo medio (in passi) di un lampo A->X->A con X a distanza L da A, lungo il moto ('lungo') o di traverso;
-        l'oggetto si muove a velocita' v (coordinate per passo) in una direzione a caso. Ritorna media ed errore."""
+        """mean time (in steps) of a flash A->X->A with X at distance L from A, along the motion ('lungo') or across;
+        the object moves at speed v (coordinates per step) in a random direction. Returns mean and error."""
         T = np.empty(ntic)
         passi = np.arange(1, cap + 1)
         for k in range(ntic):
@@ -75,7 +75,7 @@ class Banco:
             off = (d if direzione == 'lungo' else perp) * L
             xA = self.rng.random(2)
             t = 0
-            for tratto in (0, 1):                 # tratto 0: da A a X ; tratto 1: da X ad A
+            for tratto in (0, 1):                 # leg 0: from A to X ; leg 1: from X to A
                 sorgente = xA + d * v * t + (off if tratto == 1 else 0.0)
                 s0 = int(self.tree.query(sorgente % 1.0)[1])
                 dist = dijkstra(self.G, directed=True, indices=s0, unweighted=True, limit=cap)
@@ -90,8 +90,8 @@ class Banco:
 
 
 def equilibrio(B, b, c, Lg, TAC, eAC, ntic):
-    """distanza A-B alla quale l'andata e ritorno lungo il moto dura quanto quella di traverso (TAC).
-    Metodo delle secanti partendo da Lg (stima iniziale). Ritorna distanza, errore, misure fatte."""
+    """A-B distance at which the round trip along the motion lasts as long as the one across (TAC).
+    Secant method starting from Lg (initial guess). Returns distance, error, measurements made."""
     v = b * c
     misure = []
 
@@ -108,7 +108,7 @@ def equilibrio(B, b, c, Lg, TAC, eAC, ntic):
         L = L1 + (TAC - T1) * (L2 - L1) / (T2 - T1)
         if min(L1, L2) - 0.01 * Lg <= L <= max(L1, L2) + 0.01 * Lg:
             break
-        T3, e3 = misura(L)                       # stima fuori dall'intervallo: nuova misura, tengo le due piu' vicine
+        T3, e3 = misura(L)                       # estimate outside the interval: new measurement, keep the two closest
         if abs(L - L1) > abs(L - L2):
             L1, T1, e1 = L, T3, e3
         else:
@@ -129,25 +129,25 @@ if __name__ == '__main__':
     velocita = [float(x) for x in a[4].split(',')] if len(a) > 4 else [0.2, 0.4, 0.6, 0.8]
     t0 = time.time()
     B = Banco(N, seme)
-    print('rete casuale di %d punti pronta in %.0f s' % (N, time.time() - t0), flush=True)
+    print('random network of %d points ready in %.0f s' % (N, time.time() - t0), flush=True)
 
-    # a riposo: unita' di misura (C di traverso) e velocita' massima c
+    # at rest: unit of length (C across) and maximum speed c
     TAC0, eAC0 = B.andata_ritorno('traverso', Lp, 0.0, 2 * ntic, int(1.6 * Lp / (1.12 * B.ell)) + 40)
     c = 2 * Lp / TAC0
     L0, eL0, _ = equilibrio(B, 0.0, c, Lp, TAC0, eAC0, ntic)
-    print('A riposo: C di traverso a %.1f legami, andata e ritorno %.2f passi, c = %.5f per passo' % (TAC0 / 2, TAC0, c))
-    print('A riposo: B si mette a %.4f contro %.4f di C (rapporto %.4f +- %.4f: la rete non ha direzioni preferite)'
+    print('At rest: C across at %.1f links, round trip %.2f steps, c = %.5f per step' % (TAC0 / 2, TAC0, c))
+    print('At rest: B settles at %.4f against %.4f for C (ratio %.4f +- %.4f: the network has no preferred directions)'
           % (L0, Lp, L0 / Lp, eL0 / Lp), flush=True)
-    print(' v/c | tempo interno (andata e ritorno A-C), rallentamento | distanza di equilibrio A-B rispetto a riposo | relativita\' | differenza')
+    print(' v/c | internal time (round trip A-C), slowdown | equilibrium distance A-B relative to rest | relativity | difference')
     for b in velocita:
         g = 1 / math.sqrt(1 - b * b)
         if (Lp / g) * 1.1 / (1 - b) >= 0.45:
-            print(' %.2f | oltre il limite della scatola (il lampo farebbe il giro dell\'universo chiuso)' % b, flush=True)
+            print(' %.2f | beyond the box limit (the flash would go around the closed universe)' % b, flush=True)
             continue
         TAC, eAC = B.andata_ritorno('traverso', Lp, b * c, ntic, int(1.6 * Lp * g / c) + 40)
         L, eL, mis = equilibrio(B, b, c, Lp * TAC0 / TAC, TAC, eAC, ntic)
         r = L / L0
         er = r * math.sqrt((eL / L) ** 2 + (eL0 / L0) ** 2)
-        print(' %.2f |                 %.3f (relativita\' %.3f)          |              %.4f +- %.4f              |    %.4f    |  %+.1f%%'
+        print(' %.2f |                 %.3f (relativity %.3f)          |              %.4f +- %.4f              |    %.4f    |  %+.1f%%'
               % (b, TAC / TAC0, g, r, er, 1 / g, 100 * (r * g - 1)), flush=True)
-    print('tempo %.0f s' % (time.time() - t0))
+    print('time %.0f s' % (time.time() - t0))

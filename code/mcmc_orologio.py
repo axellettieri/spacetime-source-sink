@@ -1,10 +1,10 @@
-"""Catena completa delle incertezze (emcee) per il modello con OROLOGIO EMERGENTE:
-spettro completo di Planck + DESI + supernovae, come cmb_orologio.py.
-Uso:  python mcmc_orologio.py <orologio.json> <soglia> <passi> <processi>
-      es.  python mcmc_orologio.py fine_L250_s1.json 10 3000 14
-Parametri: omega_m, omega_b, ln(alfa), ln(gamma), ln(1e10 A_s), n_s, tau.
-Salva ogni 20 passi in catena_orologio_<orologio>_<soglia>[_<supernovae>].npy; rilanciato con lo stesso comando riprende da li'.
-Campione di supernovae: variabile SNSET (pantheon predefinito, union3, dovekie)."""
+"""Full uncertainty chain (emcee) for the model with the EMERGENT CLOCK:
+full Planck spectrum + DESI + supernovae, as in cmb_orologio.py.
+Usage:  python mcmc_orologio.py <clock.json> <threshold> <steps> <processes>
+      e.g.  python mcmc_orologio.py fine_L250_s1.json 10 3000 14
+Parameters: omega_m, omega_b, ln(alpha), ln(gamma), ln(1e10 A_s), n_s, tau.
+Saves every 20 steps in catena_orologio_<clock>_<threshold>[_<supernovae>].npy; relaunched with the same command it resumes from there.
+Supernova sample: SNSET variable (pantheon default, union3, dovekie)."""
 import numpy as np, sys, os, json, time
 os.environ['OMP_NUM_THREADS']='1'
 from multiprocessing import Pool
@@ -24,13 +24,13 @@ if __name__=='__main__':
     x0=np.array(json.load(open(start))['p']) if os.path.exists(start) else np.array([0.1424,0.0224,-2.18,0.38,3.0497,0.9667,0.0584])
     sg=np.array([6e-4,1.2e-4,0.04,0.10,0.008,0.004,0.006]); nd=len(x0)
     f=os.path.join(co.HERE,'catena_orologio_%s_%g%s.npy'%(nome,soglia,suf)); rng=np.random.default_rng(3)
-    if os.path.exists(f): old=np.load(f); p0=old[-1,:,:nd]; print('riprendo da',f,old.shape,flush=True)
+    if os.path.exists(f): old=np.load(f); p0=old[-1,:,:nd]; print('resuming from',f,old.shape,flush=True)
     else: old=None; p0=x0+rng.normal(size=(nw,nd))*sg
-    print('partenza:',np.round(x0,5).tolist(),'| camminatori',nw,'| processi',npr,flush=True)
+    print('start:',np.round(x0,5).tolist(),'| walkers',nw,'| processes',npr,flush=True)
     with Pool(npr) as pool:
         s=emcee.EnsembleSampler(nw,nd,lnp,pool=pool); t0=time.time()
         for i,_ in enumerate(s.sample(p0,iterations=nst)):
             if (i+1)%20==0 or i+1==nst:
                 ch=np.concatenate([s.get_chain(),s.get_log_prob()[:,:,None]],axis=2)
                 np.save(f+'.tmp.npy',ch if old is None else np.concatenate([old,ch])); os.replace(f+'.tmp.npy',f)
-                print('passo %d/%d  %.0f s (%.1f s a passo)  chi2 minimo %.2f'%(i+1,nst,time.time()-t0,(time.time()-t0)/(i+1),-2*s.get_log_prob().max()),flush=True)
+                print('step %d/%d  %.0f s (%.1f s per step)  minimum chi2 %.2f'%(i+1,nst,time.time()-t0,(time.time()-t0)/(i+1),-2*s.get_log_prob().max()),flush=True)

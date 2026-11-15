@@ -1,6 +1,6 @@
 # Source–sink model: analysis code
 
-English guide to the scripts. The original Italian notes are in `LEGGIMI.txt`. Script names and comments in the code are in Italian.
+English guide to the scripts. The original Italian notes are in `LEGGIMI.txt`. Comments, docstrings and screen output are in English; file, variable and function names are still in Italian (see the glossary at the end), so that the archived code matches the published results exactly.
 
 ## Requirements
 
@@ -118,3 +118,31 @@ Example for experiment 8:
 | `fine_L250_s1.json` | Event clock from the fine-resolution simulation (250 Mpc box) |
 | `cmb_orologio_fine_L250_s1_10.json` | Full-Planck fit with that clock |
 | `nucleo_lente.npz` | Lensing kernel used by `cmb_full.py` |
+
+## Glossary of Italian names
+
+| Italian | English | Italian | English |
+|---|---|---|---|
+| orologio | clock | soglia | threshold |
+| sorgente | source | pozzo | sink |
+| materia | matter | spazio | space |
+| evento, eventi | event, events | collasso | collapse |
+| collassata | collapsed | inversione | turnaround |
+| catena | chain | passi | steps |
+| camminatori | walkers | processi | processes |
+| corsa | run | riassunto | summary |
+| adatta, adattamento | fit (verb), fit (noun) | analizza | analyse |
+| scarica_dati | download data | crescita | growth |
+| controllo | check | ambiente | environment |
+| futuro | future | scala fine | fine scale |
+| universo | universe | traccia | trace |
+| versione locale | local version | cono | (light) cone |
+| gusci | shells | orologi | clocks |
+| grafo | graph | esperimento | experiment |
+| percolazione | percolation | rete | network |
+| vertice, vicini | vertex, neighbours | lato, legame | edge, link |
+| seme | random seed | stelle, stellare | stars, stellar |
+| originale | original (sink form) | diluito | diluted |
+| ritmo | rate | massa | mass |
+| oggi | today | fine | end |
+| alfa | alpha | ripresa | restart |

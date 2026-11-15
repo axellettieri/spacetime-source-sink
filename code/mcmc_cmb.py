@@ -1,8 +1,8 @@
-"""Campionamento completo con lo spettro del fondo cosmico (versione 2, da eseguire sul PC).
-Uso:  python mcmc_cmb.py cum_n3 3000 8 [U|E]     (modello, passi, processi, trattamento della lente: U = corretto, predefinito)
-Modelli: cum_n3 (pozzo proporzionale alla massa accumulata), prop_n3 (pozzo proporzionale al livello), LCDM, w0wa.
-Salva ogni 20 passi in catena_v2_<modello>.npy e, rilanciato con lo stesso comando, riprende da li'.
-Con 8 processi: circa 4 secondi per valutazione, 32 camminatori -> circa 17 s a passo, 3000 passi in circa 14 ore."""
+"""Full sampling with the cosmic microwave background spectrum (version 2, to be run on the PC).
+Usage:  python mcmc_cmb.py cum_n3 3000 8 [U|E]     (model, steps, processes, lensing treatment: U = corrected, default)
+Models: cum_n3 (sink proportional to accumulated mass), prop_n3 (sink proportional to the level), LCDM, w0wa.
+Saves every 20 steps in catena_v2_<model>.npy and, relaunched with the same command, resumes from there.
+With 8 processes: about 4 seconds per evaluation, 32 walkers -> about 17 s per step, 3000 steps in about 14 hours."""
 import numpy as np, sys, os, json, time
 os.environ['OMP_NUM_THREADS']='1'
 from multiprocessing import Pool
@@ -15,7 +15,7 @@ def lnp(p):
 if __name__=='__main__':
     x0=np.array(START[name]); sg=1.5*np.array(SCALE[name]); nd=len(x0); nw=32
     f=os.path.join(HERE,f'catena_v2_{name}.npy'); rng=np.random.default_rng(2)
-    if os.path.exists(f): old=np.load(f); p0=old[-1,:,:nd]; print('riprendo da',f,old.shape)
+    if os.path.exists(f): old=np.load(f); p0=old[-1,:,:nd]; print('resuming from',f,old.shape)
     else: old=None; p0=x0+rng.normal(size=(nw,nd))*sg
     with Pool(npr) as pool:
         s=emcee.EnsembleSampler(nw,nd,lnp,pool=pool); t0=time.time()
@@ -23,4 +23,4 @@ if __name__=='__main__':
             if (i+1)%20==0 or i+1==nst:
                 ch=np.concatenate([s.get_chain(),s.get_log_prob()[:,:,None]],axis=2)
                 np.save(f,ch if old is None else np.concatenate([old,ch]))
-                print('passo %d/%d  %.0f s  chi2 minimo %.2f'%(i+1,nst,time.time()-t0,-2*s.get_log_prob().max()),flush=True)
+                print('step %d/%d  %.0f s  minimum chi2 %.2f'%(i+1,nst,time.time()-t0,-2*s.get_log_prob().max()),flush=True)

@@ -1,15 +1,15 @@
-"""Test 3 (versione 2): spettro completo del fondo cosmico (Planck 2018 plik-lite TTTEEE + TT a bassi multipoli) con CAMB.
+"""Test 3 (version 2): full cosmic microwave background spectrum (Planck 2018 plik-lite TTTEEE + low-multipole TT) with CAMB.
 
-Il modello sorgente-pozzo entra come fluido efficace: stessa espansione del modello, energia oscura efficace
-rho_eff = rho_m + rho_x - omega_m,iniziale*(1+z)^3 con equazione di stato tabulata w(a).
+The source-sink model enters as an effective fluid: same expansion as the model, effective dark energy
+rho_eff = rho_m + rho_x - omega_m,initial*(1+z)^3 with a tabulated equation of state w(a).
 
-Novita' rispetto alla versione 1:
-  - l'orizzonte sonoro r_d per DESI e' quello calcolato da CAMB (prima: formula approssimata, +0,1%);
-  - correzione dell'effetto di lente (pert='U'): nel fluido efficace la materia scambiata resta liscia; nel modello
-    con scambio diffuso invece si muove con la materia circostante. La differenza nel potenziale gravitazionale
-    (1-2%) e' calcolata dalle equazioni di crescita del modello e applicata come ampiezza di lente A_lens;
-  - selezione ufficiale delle supernovae Pantheon+ (1590), tramite fit3.py.
-pert='E' riproduce la versione 1 (nessuna correzione di lente)."""
+Changes from version 1:
+  - the sound horizon r_d for DESI is the one computed by CAMB (before: approximate formula, +0.1%);
+  - lensing correction (pert='U'): in the effective fluid the exchanged matter stays smooth; in the model
+    with diffuse exchange it moves with the surrounding matter instead. The difference in the gravitational potential
+    (1-2%) is computed from the model's growth equations and applied as a lensing amplitude A_lens;
+  - official Pantheon+ supernova selection (1590), via fit3.py.
+pert='E' reproduces version 1 (no lensing correction)."""
 import numpy as np, math, json, sys, os, time
 os.environ.setdefault('OMP_NUM_THREADS','1')
 import camb
@@ -24,8 +24,8 @@ for d in (os.path.join(HERE,'planck-lite-py'),os.path.join(HERE,'..','ext','plan
 from planck_lite_py import PlanckLitePy
 PL=PlanckLitePy(data_directory=PLDIR,year=2018,spectra='TTTEEE',use_low_ell_bins=True)
 WNU=0.000645; ZT=20.0; NLN=-U; ZU=np.expm1(U)
-INFO={'cum_n3':(3,'cum'),'const_n3':(3,'const'),'prop_n3':(3,'prop'),'solo_rubinetto_n3':(3,'cum')}   # (diluizione sorgente, tipo di pozzo)
-# ---------- fluido efficace per CAMB
+INFO={'cum_n3':(3,'cum'),'const_n3':(3,'const'),'prop_n3':(3,'prop'),'solo_rubinetto_n3':(3,'cum')}   # (source dilution, sink type)
+# ---------- effective fluid for CAMB
 def w_table(e_u,wm):
     rho=e_u**2-wm*(1+ZU)**3-OR*(1+ZU)**4; k=(ZU<=ZT)
     if np.any(rho[k]<=0): raise ValueError('rho_eff negativa')
@@ -36,7 +36,7 @@ def spectra(e_u,wm,wb,logA,ns,tau,alens=1.0):
     p.InitPower.set_params(As=math.exp(logA)*1e-10,ns=ns); p.set_for_lmax(2600,lens_potential_accuracy=1)
     r=camb.get_results(p); cl=r.get_cmb_power_spectra(p,CMB_unit='muK',spectra=['total'])['total']
     return cl,r
-# ---------- crescita lineare: sorgente del potenziale Delta = (materia comovente) x (contrasto di densita')
+# ---------- linear growth: source of the potential Delta = (comoving matter) x (density contrast)
 def _grow(E,m,g):
     sE=CubicSpline(NLN,E); sm=CubicSpline(NLN,m); sg=CubicSpline(NLN,g)
     def f(n,y):
@@ -44,14 +44,14 @@ def _grow(E,m,g):
         return [y[1], -(de/e+2+gg/e)*y[1]+(1.5*sm(n)-2*e*gg-e*dg)/e**2*y[0]]
     a0=math.exp(NLN[0]); return solve_ivp(f,[NLN[0],0],[a0,a0],dense_output=True,rtol=1e-8,atol=1e-12).sol
 def delta_ratio(name,pm,e_u,o,pert):
-    """Rapporto Delta_modello/Delta_fluido-efficace in funzione di ln a (spline)."""
+    """Ratio Delta_model/Delta_effective-fluid as a function of ln a (spline)."""
     n,kind=INFO[name]; al=math.exp(pm[2]); ga=math.exp(pm[3]) if len(pm)>3 else 0.0; m,x,M=o.T
     sink=ga*x if kind=='prop' else ga*M if kind=='cum' else ga*np.ones_like(x)
-    g=-(al*psi(ZU)*(1+ZU)**n-sink)/m                     # ritmo con cui la materia guadagna energia, per unita' di materia
+    g=-(al*psi(ZU)*(1+ZU)**n-sink)/m                     # rate at which matter gains energy, per unit matter
     dM=_grow(e_u,m,g if pert=='U' else 0*g); dE=_grow(e_u,pm[0]*(1+ZU)**3,0*g)
     lna=np.linspace(NLN[0],0,400); Mc=CubicSpline(NLN,m*(1+ZU)**-3)(lna)
     return CubicSpline(lna,Mc*dM(lna)[0]/(pm[0]*dE(lna)[0]))
-# ---------- pesi in redshift della lente del fondo cosmico (Limber, modello LCDM di riferimento)
+# ---------- redshift weights of CMB lensing (Limber, reference LCDM model)
 def _kernel():
     f=os.path.join(HERE,'nucleo_lente.npz')
     if os.path.exists(f):
@@ -70,9 +70,9 @@ KZ,KW=_kernel()
 def alens_of(name,pm,e_u,o,pert):
     if pert=='E' or name not in INFO: return 1.0
     R=delta_ratio(name,pm,e_u,o,pert)(-np.log1p(KZ)); return float(np.sum(KW*R**2))
-# ---------- chi quadro totale
+# ---------- total chi-squared
 def chi2_all(name,p,parts=False,pert='U'):
-    """p = parametri del modello (come in fit3) + [ln(1e10 A_s), n_s, tau]."""
+    """p = model parameters (as in fit3) + [ln(1e10 A_s), n_s, tau]."""
     pm=list(p[:-3]); logA,ns,tau=p[-3:]; mk=MODELS[name][0]
     try:
         e,wm,wb,o=mk(pm)
@@ -100,7 +100,7 @@ if __name__=='__main__':
     name=sys.argv[1]; pert=sys.argv[2] if len(sys.argv)>2 else 'U'; nit=int(sys.argv[3]) if len(sys.argv)>3 else 400
     x0=np.array(START[name]); sc=np.array(SCALE[name]); N_=len(x0); t0=time.time(); best=[1e9,None]; n=[0]
     suf='' if SNSET=='pantheon' else '_'+SNSET
-    if suf:   # con un altro campione di supernovae parte dal fit rapido corrispondente
+    if suf:   # with another supernova sample, start from the corresponding quick fit
         r3=json.load(open(os.path.join(HERE,'results3%s.json'%suf)))[name]['p']; x0[:len(r3)]=r3
     def F(u):
         v=x0+u*sc; c=chi2_all(name,list(v),pert=pert); n[0]+=1
@@ -109,4 +109,4 @@ if __name__=='__main__':
         return c
     minimize(F,np.zeros(N_),method='Nelder-Mead',options=dict(initial_simplex=np.vstack([np.zeros(N_),np.eye(N_)]),xatol=0.03,fatol=0.01,maxiter=nit,adaptive=True))
     out=chi2_all(name,best[1],True,pert=pert); out['p']=[float(a) for a in best[1]]; out['sec']=time.time()-t0; out['pert']=pert
-    print('FINALE',name,pert,json.dumps(out),flush=True); json.dump(out,open(os.path.join(HERE,f'cmb2_{name}_{pert}{suf}.json'),'w'))
+    print('FINAL',name,pert,json.dumps(out),flush=True); json.dump(out,open(os.path.join(HERE,f'cmb2_{name}_{pert}{suf}.json'),'w'))

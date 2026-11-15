@@ -1,7 +1,7 @@
 #!/bin/bash
-# Orologio degli eventi a risoluzione piu' fine, su 4 GPU in parallelo (una corsa per GPU).
-# Scatole piu' piccole = celle piu' piccole = aloni di galassie risolti meglio. Poi adatta ogni orologio ai dati.
-# Servono nella cartella: fit3.py, i dati scaricati (scarica_dati.py) e results3.json (python fit3.py).
+# Event clock at finer resolution, on 4 GPUs in parallel (one run per GPU).
+# Smaller boxes = smaller cells = galaxy halos better resolved. Then fits each clock to the data.
+# Needed in the folder: fit3.py, the downloaded data (scarica_dati.py) and results3.json (python fit3.py).
 set -e
 N=${N:-512}; P=${P:-1500}; SOGLIE=3,10,30,100,200
 [ -f results3.json ] || python fit3.py

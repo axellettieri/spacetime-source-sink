@@ -1,4 +1,4 @@
-"""Test 1: campionamento completo (emcee) del modello con pozzo proporzionale alla massa accumulata o costante."""
+"""Test 1: full sampling (emcee) of the model with sink proportional to the accumulated mass, or constant."""
 import numpy as np, math, json, sys, emcee
 from fit3 import *
 name=sys.argv[1] if len(sys.argv)>1 else 'cum_n3'; kind=name.split('_')[0]

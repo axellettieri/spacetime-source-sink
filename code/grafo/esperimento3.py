@@ -1,10 +1,10 @@
-"""Esperimento 3: lo spazio come grafo senza coordinate (due dimensioni di spazio).
-Lo spazio e' una rete di triangoli chiusa su se stessa: ogni vertice e' un atomo di spazio, le distanze si contano in passi sul grafo.
-- CREAZIONE locale: in una zona attiva (dove avvengono gli eventi) si aggiungono vertici, uno alla volta, spezzando un triangolo in tre.
-- RILASSAMENTO: scambi di lati (flip) accettati se avvicinano la rete a quella regolare (6 vicini per vertice = spazio piatto),
-  con un po' di agitazione termica T. R = tentativi di scambio per ogni vertice creato.
-Domande: lo spazio creato in un punto resta li' o si sparge? Le distanze crescono davvero? Lo spazio resta a due dimensioni?
-Uso: python esperimento3.py n crescita R T [seme] [ovunque]     (n = lato della rete iniziale, crescita = frazione di vertici aggiunti)"""
+"""Experiment 3: space as a graph without coordinates (two space dimensions).
+Space is a closed network of triangles: each vertex is an atom of space, distances are counted in steps on the graph.
+- Local CREATION: in an active region (where events happen) vertices are added, one at a time, splitting a triangle into three.
+- RELAXATION: edge flips accepted if they bring the network closer to the regular one (6 neighbours per vertex = flat space),
+  with some thermal agitation T. R = flip attempts per created vertex.
+Questions: does space created at a point stay there or spread? Do distances really grow? Does space stay two-dimensional?
+Usage: python esperimento3.py n growth R T [seed] [ovunque]     (n = side of the initial network, growth = fraction of vertices added)"""
 import random, math, sys, time
 from collections import deque
 class Rete:
@@ -27,7 +27,7 @@ class Rete:
         for v in s.tri[s.edge[(a,b)]]:
             if v!=a and v!=b: return v
     def split(s,a,b):
-        """aggiunge un vertice dentro il triangolo che contiene il lato orientato a->b"""
+        """adds a vertex inside the triangle containing the oriented edge a->b"""
         t=s.edge[(a,b)]; c=s.opp(a,b); v=s.nv; s.nv+=1; s.nbr[v]=set(); s.rem(t)
         s.add(a,b,v); s.add(b,c,v); s.add(c,a,v); return v
     def flip(s,a,b,T):
@@ -46,14 +46,14 @@ class Rete:
                 if w not in d: d[w]=du+1; q.append(w)
         return d
 def dimensione(R,radici,r1,r2):
-    """dimensione dalla crescita del numero di vertici entro distanza r:  N(r) ~ r^d"""
+    """dimension from the growth of the number of vertices within distance r:  N(r) ~ r^d"""
     n1=n2=0
     for r0 in radici:
         d=R.bfs(r0,r2); n1+=sum(1 for x in d.values() if x<=r1); n2+=len(d)
     return math.log(n2/n1)/math.log(r2/r1)
 def geometria(R,nrad,r):
-    """misure che non dipendono da quali vertici si guardano: distanza media fra vertici a caso, e volume delle palle di raggio r
-    diviso quello dello spazio piatto (1 = piatto; lo scarto fra radici dice se ci sono zone gonfie o strozzate)"""
+    """measures that do not depend on which vertices are looked at: mean distance between random vertices, and volume of balls of radius r
+    divided by that of flat space (1 = flat; the spread between centres tells whether there are swollen or pinched regions)"""
     vs=list(R.nbr); rad=random.sample(vs,nrad); dm=0; pal=[]; piatto=3*r*r+3*r+1
     for r0 in rad:
         d=R.bfs(r0); dm+=sum(d.values())/len(d); pal.append(sum(1 for x in d.values() if x<=r)/piatto)
@@ -61,8 +61,8 @@ def geometria(R,nrad,r):
 def esegui(n=40,crescita=0.5,Rf=100,T=0.3,seme=1,verbose=True,ovunque=False):
     random.seed(seme); R=Rete(n); V0=R.nv; centro=(n//2)*n+n//2
     d0c=R.bfs(centro); rz=n//5
-    zona=[v for v,x in d0c.items() if x<=rz or ovunque]                       # zona attiva: qui avvengono gli eventi
-    trac=[(i*n+j) for i in range(0,n,4) for j in range(0,n,4)]      # vertici di riferimento (come galassie lontane)
+    zona=[v for v,x in d0c.items() if x<=rz or ovunque]                       # active region: events happen here
+    trac=[(i*n+j) for i in range(0,n,4) for j in range(0,n,4)]      # reference vertices (like distant galaxies)
     quieti=[v for v in trac if d0c[v]>=rz+4]; dentro=[v for v in trac if d0c[v]<=rz-1]
     lontani0=[v for v,x in d0c.items() if x>=rz+6]
     D0={v:R.bfs(v) for v in trac}; g0=geometria(R,60,n//5)
@@ -77,7 +77,7 @@ def esegui(n=40,crescita=0.5,Rf=100,T=0.3,seme=1,verbose=True,ovunque=False):
         r=[D1[u][w]/D0[u][w] for u in A for w in B if u<w and lo<=D0[u][w]<=hi]
         if not r: return float('nan'),float('nan'),0
         m=sum(r)/len(r); return m,math.sqrt(sum((x-m)**2 for x in r)/len(r)),len(r)
-    # sparpagliamento: quanti vertici NUOVI ci sono attorno ai vertici vecchi che stavano lontano dalla zona attiva (1 = sparsi ovunque)
+    # spreading: how many NEW vertices there are around old vertices far from the active region (1 = spread everywhere)
     fr=[]
     for v in random.sample(lontani0,min(150,len(lontani0))):
         d=R.bfs(v,3); fr.append(sum(1 for w in d if w>=V0)/len(d))
@@ -88,15 +88,15 @@ def esegui(n=40,crescita=0.5,Rf=100,T=0.3,seme=1,verbose=True,ovunque=False):
              quieti=rapporto(quieti,quieti,4,n//3),zona=rapporto(dentro,dentro,2,n),tutti=rapporto(trac,trac,n//4,n//2),
              vicini=rapporto(quieti,quieti,4,7),lontani=rapporto(quieti,quieti,n//3,n),dim0=dim0,dim1=dimensione(R,quieti[::3],3,n//4),sec=time.time()-t0)
     if verbose:
-        print('CREAZIONE OVUNQUE (confronto)' if ovunque else 'CREAZIONE IN UNA ZONA (13% dello spazio)')
-        print('rete %dx%d, vertici %d -> %d (se lo spazio creato si spargesse ovunque le distanze crescerebbero di %.3f volte)'%(n,n,V0,R.nv,atteso))
-        print('  scambi tentati per vertice creato: %d (riusciti %d), temperatura %.2f, tempo %.0f s'%(Rf,nf,T,res['sec']))
-        print('  SPARPAGLIAMENTO dello spazio creato lontano dalla zona attiva: %.0f%% (0 = resta dove e\' nato, 100 = sparso ovunque)'%(100*sparso))
-        print('  distanza media fra due punti qualsiasi: x%.3f | volume delle palle rispetto allo spazio piatto: %.2f, scarto fra zone %.0f%%'%(res['dist_media'],g1[1],100*g1[2]/g1[1]))
-        print('  distanze fra riferimenti LONTANI dalla zona attiva: x%.3f (scarto %.3f, %d coppie)'%res['quieti'])
-        print('  distanze fra riferimenti DENTRO la zona attiva:      x%.3f (scarto %.3f, %d coppie)'%res['zona'])
-        print('  legge di Hubble fuori zona: coppie vicine x%.3f, coppie lontane x%.3f'%(res['vicini'][0],res['lontani'][0]))
-        print('  dimensione dello spazio: prima %.2f, dopo %.2f | vertici non regolari %.0f%%, massimo numero di vicini %d'%(dim0,res['dim1'],100*difetti,max(gr)))
+        print('CREATION EVERYWHERE (comparison)' if ovunque else 'CREATION IN ONE REGION (13% of space)')
+        print('network %dx%d, vertices %d -> %d (if created space spread everywhere, distances would grow by %.3f times)'%(n,n,V0,R.nv,atteso))
+        print('  flips attempted per created vertex: %d (succeeded %d), temperature %.2f, time %.0f s'%(Rf,nf,T,res['sec']))
+        print('  SPREADING of created space far from the active region: %.0f%% (0 = stays where it was born, 100 = spread everywhere)'%(100*sparso))
+        print('  mean distance between any two points: x%.3f | volume of balls relative to flat space: %.2f, spread between regions %.0f%%'%(res['dist_media'],g1[1],100*g1[2]/g1[1]))
+        print('  distances between references FAR from the active region: x%.3f (spread %.3f, %d pairs)'%res['quieti'])
+        print('  distances between references INSIDE the active region:   x%.3f (spread %.3f, %d pairs)'%res['zona'])
+        print('  Hubble law outside the region: near pairs x%.3f, far pairs x%.3f'%(res['vicini'][0],res['lontani'][0]))
+        print('  dimension of space: before %.2f, after %.2f | irregular vertices %.0f%%, maximum number of neighbours %d'%(dim0,res['dim1'],100*difetti,max(gr)))
     return res
 if __name__=='__main__':
     a=sys.argv[1:]

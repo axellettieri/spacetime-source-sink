@@ -11,7 +11,7 @@ h=rows[0]; rows=rows[1:]
 col=lambda n: np.array([float(r[h.index(n)]) for r in rows])
 zhd=col('zHD'); mb=col('m_b_corr'); cal=col('IS_CALIBRATOR'); zhel=col('zHEL')
 cov=np.loadtxt(D+'pp.cov',skiprows=1).reshape(1701,1701)
-m=(zhd>0.01)   # selezione ufficiale Pantheon+ senza SH0ES: 1590 supernovae
+m=(zhd>0.01)   # official Pantheon+ selection without SH0ES: 1590 supernovae
 zs=zhd[m]; zsh=zhel[m]; mbs=mb[m]; Ci=np.linalg.inv(cov[np.ix_(m,m)])
 one=np.ones(m.sum()); Ci1=Ci@one; s11=one@Ci1
 bz=[];bv=[];bt=[]
@@ -21,15 +21,15 @@ for l in open(D+'desi_mean.txt'):
 bz=np.array(bz);bv=np.array(bv);bCi=np.linalg.inv(np.loadtxt(D+'desi_cov.txt'))
 Or=9e-5
 zg=np.concatenate([[0],np.expm1(np.linspace(np.log(1.0005),np.log(3.6),700))])
-def psi(z): return (1+z)**2.7/(1+((1+z)/2.9)**5.6)   # Madau-Dickinson 2014, normalizzata a meno di costante
-# ---------- modelli: restituiscono funzione x(z)=rho_DE/rho_crit0 ----------
+def psi(z): return (1+z)**2.7/(1+((1+z)/2.9)**5.6)   # Madau-Dickinson 2014, normalized up to a constant
+# ---------- models: return the function x(z)=rho_DE/rho_crit0 ----------
 def x_lcdm(p): return lambda z: (1-p[0]-Or)+0*z
 def x_w0wa(p):
     Om,w0,wa=p; return lambda z:(1-Om-Or)*(1+z)**(3*(1+w0+wa))*np.exp(-3*wa*z/(1+z))
-def x_inst(p):  # B istantaneo: rho_DE proporzionale al tasso di dissipazione
+def x_inst(p):  # B instantaneous: rho_DE proportional to the dissipation rate
     return lambda z:(1-p[0]-Or)*psi(z)/psi(0)
 def make_ss(n,mm,zmax=30,N=500):
-    u=np.linspace(np.log(1+zmax),0,N+1)  # u=ln(1+z) decrescente
+    u=np.linspace(np.log(1+zmax),0,N+1)  # u=ln(1+z) decreasing
     def solve(Om,beta,alpha):
         x=0.0; xs=[0.0]
         def f(u,x):

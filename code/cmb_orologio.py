@@ -1,9 +1,9 @@
-"""Planck completo (plik-lite TTTEEE + bassi multipoli) + DESI + supernovae per il modello sorgente-pozzo
-con l'OROLOGIO EMERGENTE: gli eventi sono la materia che collassa (dalla simulazione 3D o dalla teoria), non la formazione stellare osservata.
-  spazio creato   = alpha * materia * (ritmo di collasso)
-  spazio assorbito = gamma * omega_m * (frazione collassata)          (formula 'originale' di universo3d.py)
-Uso: python cmb_orologio.py <file orologio .json> <soglia> [iterazioni]      (soglia = valore di 'dc' o di una delle 'soglie' nel file)
-Stessa catena di cmb_full.py: fluido efficace in CAMB, r_d da CAMB, correzione di lente dalle equazioni di crescita (scambio diffuso)."""
+"""Full Planck (plik-lite TTTEEE + low multipoles) + DESI + supernovae for the source-sink model
+with the EMERGENT CLOCK: events are collapsing matter (from the 3D simulation or from theory), not the observed star formation.
+  created space   = alpha * matter * (collapse rate)
+  absorbed space  = gamma * omega_m * (collapsed fraction)          ('originale' formula of universo3d.py)
+Usage: python cmb_orologio.py <clock .json file> <threshold> [iterations]      (threshold = value of 'dc' or of one of the 'soglie' in the file)
+Same pipeline as cmb_full.py: effective fluid in CAMB, r_d from CAMB, lensing correction from the growth equations (diffuse exchange)."""
 import sys, json, math, time, os
 import numpy as np
 from scipy.interpolate import PchipInterpolator
@@ -21,7 +21,7 @@ def passato(wm,al,ga,Fs):
     def rhs(u,m,x):
         o=math.exp(u); E2=m+OR*o**4+x
         if E2<=0 or m<=0: raise ValueError
-        E=math.sqrt(E2); QE=-al*m*float(dF(u))-ga*wm*float(Fs(u))/E          # Q/E ; dF/du < 0 perche' u cala nel tempo
+        E=math.sqrt(E2); QE=-al*m*float(dF(u))-ga*wm*float(Fs(u))/E          # Q/E ; dF/du < 0 because u decreases in time
         return 3*m+QE, -QE
     for i in range(NU):
         hh=UL[i+1]-UL[i]; u=UL[i]
@@ -49,7 +49,7 @@ def chi2_orol(p,Fs,parts=False):
 if __name__=='__main__':
     f=sys.argv[1]; soglia=float(sys.argv[2]); nit=int(sys.argv[3]) if len(sys.argv)>3 else 500
     Fs=carica_orologio(f,soglia); suf='' if SNSET=='pantheon' else '_'+SNSET
-    # 1) partenza: adattamento rapido (Planck compresso) con la stessa formula
+    # 1) start: quick fit (compressed Planck) with the same formula
     L3=json.load(open(os.path.join(HERE,'results3%s.json'%suf)))['LCDM']['chi2']
     def rapido(v):
         try:
@@ -62,14 +62,14 @@ if __name__=='__main__':
         r=minimize(rapido,[0.1445,0.02236,b0+0.3,g],method='Nelder-Mead',options=dict(xatol=1e-5,fatol=1e-3,maxiter=3000,adaptive=True))
         r=minimize(rapido,r.x,method='Nelder-Mead',options=dict(xatol=1e-6,fatol=1e-4,maxiter=3000,adaptive=True))
         if best is None or r.fun<best.fun: best=r
-    print('adattamento rapido (Planck compresso): chi2 da LCDM %+.2f, p=%s'%(best.fun-L3,np.round(best.x,5).tolist()),flush=True)
-    # 2) Planck completo
+    print('quick fit (compressed Planck): chi2 vs LCDM %+.2f, p=%s'%(best.fun-L3,np.round(best.x,5).tolist()),flush=True)
+    # 2) full Planck
     LC=json.load(open(os.path.join(HERE,'cmb2_LCDM_U%s.json'%suf)))
     x0=np.array([0.1425,0.0224,best.x[2],best.x[3],3.0509,0.9665,0.0589]); sc=np.array([3e-4,6e-5,0.02,0.05,0.004,0.002,0.003]); N_=7; t0=time.time(); bb=[1e9,None]; n=[0]
     def F(u):
         v=x0+u*sc; c=chi2_orol(list(v),Fs); n[0]+=1
-        if c<bb[0]: bb[0]=c; bb[1]=list(v); print('n=%d t=%.0fs chi2=%.2f (da LCDM %+.2f) p=%s'%(n[0],time.time()-t0,c,c-LC['tot'],np.round(v,5).tolist()),flush=True)
+        if c<bb[0]: bb[0]=c; bb[1]=list(v); print('n=%d t=%.0fs chi2=%.2f (vs LCDM %+.2f) p=%s'%(n[0],time.time()-t0,c,c-LC['tot'],np.round(v,5).tolist()),flush=True)
         return c
     minimize(F,np.zeros(N_),method='Nelder-Mead',options=dict(initial_simplex=np.vstack([np.zeros(N_),np.eye(N_)]),xatol=0.03,fatol=0.01,maxiter=nit,adaptive=True))
     out=chi2_orol(bb[1],Fs,True); out['p']=[float(a) for a in bb[1]]; out['sec']=time.time()-t0; out['delta']=out['tot']-LC['tot']; out['orologio']=os.path.basename(f); out['soglia']=soglia
-    print('FINALE',json.dumps(out),flush=True); json.dump(out,open(os.path.join(HERE,'cmb_orologio_%s_%g%s.json'%(os.path.basename(f).replace('.json',''),soglia,suf)),'w'))
+    print('FINAL',json.dumps(out),flush=True); json.dump(out,open(os.path.join(HERE,'cmb_orologio_%s_%g%s.json'%(os.path.basename(f).replace('.json',''),soglia,suf)),'w'))

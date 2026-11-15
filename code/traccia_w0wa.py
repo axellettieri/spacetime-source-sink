@@ -1,8 +1,8 @@
-"""La relazione obbligata fra w0 e wa prevista dal modello sorgente-pozzo.
-Per ogni intensita' del pozzo (gamma) si adattano gli altri parametri ai dati (confronto rapido), poi si cerca la coppia (w0, wa)
-che riproduce meglio la storia di espansione del modello (stessa materia iniziale, stessa distanza del fondo cosmico).
-Il modello ha un parametro in meno di w0wa: i suoi punti stanno su una linea nel piano (w0, wa), non su tutto il piano.
-Uso: python traccia_w0wa.py [cum|prop|const]"""
+"""The forced relation between w0 and wa predicted by the source-sink model.
+For each sink strength (gamma) the other parameters are fitted to the data (quick comparison), then the (w0, wa) pair
+that best reproduces the model's expansion history is found (same initial matter, same CMB distance).
+The model has one parameter fewer than w0wa: its points lie on a line in the (w0, wa) plane, not on the whole plane.
+Usage: python traccia_w0wa.py [cum|prop|const]"""
 import sys, json, math, numpy as np
 from scipy.optimize import minimize
 from fit3 import *
@@ -23,8 +23,8 @@ def mappa(E,wm):
     Ew=e_fluid(wm,*best.x); return best.x[1],best.x[2],float(np.max(np.abs(Ew[msk]/E[msk]-1)))
 if __name__=='__main__':
     R=json.load(open('results3.json')); L0=R['LCDM']['chi2']; p0=R[kind+'_n3']['p']
-    print('pozzo:',kind,'| migliore: chi2 da LCDM %+.2f'%(R[kind+'_n3']['chi2']-L0))
-    print(' ln(gamma) | chi2 da LCDM | H0  | w0 equivalente | wa equivalente | scarto massimo di H(z) fino a z=2.5')
+    print('sink:',kind,'| best: chi2 vs LCDM %+.2f'%(R[kind+'_n3']['chi2']-L0))
+    print(' ln(gamma) | chi2 vs LCDM | H0  | equivalent w0 | equivalent wa | maximum deviation of H(z) up to z=2.5')
     out=[]
     for dg in (-3,-2,-1.5,-1,-0.6,-0.3,0,0.3,0.6,1.0,1.5):
         lg=p0[3]+dg
@@ -39,4 +39,4 @@ if __name__=='__main__':
         w0,wa,err=mappa(E,r.x[0]); out.append((lg,r.fun-L0,w0,wa))
         print('  %+6.2f   |   %+6.2f     | %.1f |    %+.3f      |    %+.3f      |   %.2f%%'%(lg,r.fun-L0,100*hh,w0,wa,100*err),flush=True)
     json.dump(out,open('traccia_w0wa_%s.json'%kind,'w'))
-    w=R['w0wa']['p']; print('per confronto, miglior w0wa libero sugli stessi dati (confronto rapido): w0 %+.3f wa %+.3f, chi2 da LCDM %+.2f'%(w[3],w[4],R['w0wa']['chi2']-L0))
+    w=R['w0wa']['p']; print('for comparison, best free w0wa on the same data (quick comparison): w0 %+.3f wa %+.3f, chi2 vs LCDM %+.2f'%(w[3],w[4],R['w0wa']['chi2']-L0))

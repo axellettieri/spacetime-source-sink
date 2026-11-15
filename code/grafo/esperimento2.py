@@ -1,11 +1,11 @@
-"""Esperimento 2: lo spazio nasce dagli eventi, direttamente sul grafo (nessuna equazione di espansione imposta).
-Universo = anello di celle (una dimensione di spazio) che evolve a passi; il grafo causale e' l'anello nel tempo.
-- N oggetti (particelle) si muovono a caso: la probabilita' di salto e' la 'temperatura' divisa per la massa.
-- Quando due oggetti si toccano c'e' un EVENTO: crea K celle nuove fra i due e li raffredda (fattore C).
-  Con probabilita' PM i due si fondono (nasce una massa piu' grande).
-- Ogni oggetto ASSORBE le celle accanto a se', al ritmo G per unita' di massa.
-Si misura: dimensione dell'universo nel tempo, ritmo degli eventi, e quanto l'espansione varia da zona a zona.
-Uso: python esperimento2.py N0 PASSI K C PM G [seme]"""
+"""Experiment 2: space is born from events, directly on the graph (no imposed expansion equation).
+Universe = ring of cells (one space dimension) evolving in steps; the causal graph is the ring through time.
+- N objects (particles) move at random: the jump probability is the 'temperature' divided by the mass.
+- When two objects touch there is an EVENT: it creates K new cells between them and cools them (factor C).
+  With probability PM the two merge (a larger mass is born).
+- Each object ABSORBS the cells next to it, at rate G per unit mass.
+Measured: size of the universe over time, event rate, and how much the expansion varies from region to region.
+Usage: python esperimento2.py N0 STEPS K C PM G [seed]"""
 import numpy as np, sys, math, json
 def run(N0=200000,steps=20000,K=4,C=0.98,PM=0.02,G=0.0,seed=1,verbose=True,snap=None):
     rng=np.random.default_rng(seed)
@@ -17,7 +17,7 @@ def run(N0=200000,steps=20000,K=4,C=0.98,PM=0.02,G=0.0,seed=1,verbose=True,snap=
         if t%max(1,steps//400)==0 or N<=2:
             W=int(gap.sum())+N; hist.append((t,W,N,ev_tot,float((T*m).sum()/m.sum()),int(m.max())))
             if N<=2 or gap.sum()==0: break
-        # 1) moto: due mezzi passi (oggetti pari, poi dispari) per evitare conflitti
+        # 1) motion: two half steps (even objects, then odd) to avoid conflicts
         h=np.minimum(0.5,0.5*T/m)
         for par in (0,1):
             idx=np.arange(par,N-(N%2 if par==0 else 0),2)
@@ -26,7 +26,7 @@ def run(N0=200000,steps=20000,K=4,C=0.98,PM=0.02,G=0.0,seed=1,verbose=True,snap=
             right=(r<hh)&(gap[idx]>0); left=(r>1-hh)&(gap[idx-1]>0)
             gap[idx[right]]-=1; gap[idx[right]-1]+=1
             gap[idx[left]]+=1; gap[idx[left]-1]-=1
-        # 2) eventi: coppie a contatto (alternando la parita' per non avere catene)
+        # 2) events: pairs in contact (alternating parity to avoid chains)
         c=np.nonzero(gap[:-1]==0)[0]; c=c[c%2==t%2]
         if len(c):
             ev_tot+=len(c); gap[c]+=K; T[c]*=C; T[c+1]*=C
@@ -35,13 +35,13 @@ def run(N0=200000,steps=20000,K=4,C=0.98,PM=0.02,G=0.0,seed=1,verbose=True,snap=
                 T[mg]=(T[mg]*m[mg]+T[mg+1]*m[mg+1])/(m[mg]+m[mg+1]); m[mg]+=m[mg+1]; gap[mg]+=gap[mg+1]
                 keep=np.ones(N,bool); keep[mg+1]=False
                 gap=gap[keep]; m=m[keep]; T=T[keep]; ident=ident[keep]
-        # 3) assorbimento: ogni oggetto toglie celle ai due lati
+        # 3) absorption: each object removes cells on both sides
         if G>0:
             d=rng.poisson(G*m/2.0); dem=d+np.roll(rng.poisson(G*m/2.0),-1)
             gap=np.maximum(gap-dem,0)
     return np.array(hist,float),snaps
 def local_scatter(s1,s2,dt,sizes=(10,100,1000,10000)):
-    """variazione dell'espansione da zona a zona: finestre di n oggetti consecutivi, stessi oggetti di confine ai due istanti"""
+    """variation of the expansion from region to region: windows of n consecutive objects, same boundary objects at the two instants"""
     id1,g1,m1=s1; id2,g2,m2=s2
     x1=np.concatenate([[0],np.cumsum(g1+1)[:-1]]); x2=np.concatenate([[0],np.cumsum(g2+1)[:-1]])
     pos2=dict(zip(id2.tolist(),x2.tolist())); out={}
@@ -62,10 +62,10 @@ if __name__=='__main__':
     t1,t2=steps//20,steps//10
     h,sn=run(N0,steps,K,C,PM,G,seed,snap=(t1,t2))
     i=int(np.argmax(h[:,1])); print('N0=%d K=%d C=%.3f PM=%.3f G=%.4f'%(N0,K,C,PM,G))
-    print('dimensione: inizio %d -> massimo %d (x%.1f) al passo %d -> fine %d al passo %d | oggetti finali %d, massa massima %d, eventi %d'%(h[0,1],h[i,1],h[i,1]/h[0,1],h[i,0],h[-1,1],h[-1,0],h[-1,2],h[-1,5],h[-1,3]))
+    print('size: start %d -> maximum %d (x%.1f) at step %d -> end %d at step %d | final objects %d, maximum mass %d, events %d'%(h[0,1],h[i,1],h[i,1]/h[0,1],h[i,0],h[-1,1],h[-1,0],h[-1,2],h[-1,5],h[-1,3]))
     q=np.linspace(0,len(h)-1,9).astype(int)
-    print('passo:dimensione/iniziale  '+'  '.join('%d:%.2f'%(h[j,0],h[j,1]/h[0,1]) for j in q))
+    print('step:size/initial  '+'  '.join('%d:%.2f'%(h[j,0],h[j,1]/h[0,1]) for j in q))
     if t1 in sn and t2 in sn:
         for n,(Hm,sc,cc,nw) in local_scatter(sn[t1],sn[t2],t2-t1).items():
-            print('zone di %5d oggetti: espansione media %.2e per passo, variazione fra zone %.1f%%, correlazione con la densita\' %+.2f (%d zone)'%(n,Hm,100*sc,cc,nw))
+            print('regions of %5d objects: mean expansion %.2e per step, variation between regions %.1f%%, correlation with density %+.2f (%d regions)'%(n,Hm,100*sc,cc,nw))
     np.save('esp2_N%d_C%.3f_G%.4f.npy'%(N0,C,G),h)

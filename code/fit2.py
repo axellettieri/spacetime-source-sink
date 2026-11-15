@@ -3,9 +3,9 @@ import numpy as np, json, math
 src=open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'fit.py')).read().split("models={")[0]
 exec(src)
 from scipy.integrate import solve_ivp
-# Variante "crunch": lo scarico non dipende dal livello della vasca.
-#  kind='cum'  : scarico proporzionale alla massa compatta accumulata M*(t)=integrale di psi
-#  kind='const': scarico a ritmo costante
+# "Crunch" variant: the drain does not depend on the level of the tank.
+#  kind='cum'  : drain proportional to the accumulated compact mass M*(t)=integral of psi
+#  kind='const': drain at constant rate
 def make(n,mm,kind,zmax=30,N=240):
     u=np.linspace(np.log(1+zmax),0,N+1)
     def rhs(u_,y,Om,al,ga):
@@ -29,7 +29,7 @@ def make(n,mm,kind,zmax=30,N=240):
         fn=lambda z: it(np.log1p(z)); fn.alpha=np.exp(la); fn.M0=ys[-1,1]; fn.xmin=ys[:,0].min()
         return fn
     def future(Om,ga,al,M0,tmax=400):
-        # tempo in unita' 1/H0; y=(ln a, x, M)
+        # time in units of 1/H0; y=(ln a, x, M)
         def f(t,y):
             la,x,M=y; a=np.exp(la); z=1/a-1
             E=np.sqrt(max(Om/a**3+x,0))
@@ -39,7 +39,7 @@ def make(n,mm,kind,zmax=30,N=240):
         ev.terminal=True; ev.direction=-1
         s=solve_ivp(f,[0,tmax],[0,1-Om-Or,M0],events=ev,rtol=1e-8,atol=1e-10,max_step=0.05)
         tz=None
-        # istante in cui l'energia oscura passa per zero
+        # moment at which dark energy crosses zero
         xx=s.y[1]; i=np.where(xx<0)[0]
         if len(i): tz=float(s.t[i[0]])
         return (float(s.t_events[0][0]) if len(s.t_events[0]) else None, tz, float(np.exp(s.y[0,-1])))
@@ -58,7 +58,7 @@ for kind in ('cum','const'):
             r=minimize(F,[0.3,g0,30.0],method='Nelder-Mead',options=dict(xatol=1e-5,fatol=1e-3,maxiter=3000))
             if best is None or r.fun<best.fun: best=r
         v=best.x; xf=mk(v[:2]); cc=chi2(xf,v[0],v[2],True)
-        if not isinstance(cc,tuple): print(kind,n,mm,'FIT FALLITO'); continue
+        if not isinstance(cc,tuple): print(kind,n,mm,'FIT FAILED'); continue
         cb,cs=cc
         tt,tz,af=mk.future(v[0],v[1],xf.alpha,xf.M0)
         zz=np.array([0,0.25,0.5,1,1.5,2,2.33])

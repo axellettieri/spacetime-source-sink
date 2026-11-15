@@ -1,7 +1,7 @@
-"""Controllo D: l'attivita' stellare e' davvero l'"orologio" preferito dai dati?
-Stesso modello sorgente-pozzo, ma con sorgenti alternative. Dati: supernovae + DESI + prior compressi di Planck (come fit3.py).
-Controllo E: sensibilita' all'epoca di inizio e alla formazione stellare ad alto redshift.
-Controllo F: bilancio dell'energia (quanta materia viene convertita in spazio per ogni kg di stelle)."""
+"""Check D: is stellar activity really the "clock" preferred by the data?
+Same source-sink model, but with alternative sources. Data: supernovae + DESI + compressed Planck priors (as in fit3.py).
+Check E: sensitivity to the starting epoch and to high-redshift star formation.
+Check F: energy budget (how much matter is converted into space per kg of stars)."""
 import numpy as np, math, json, os
 from scipy.optimize import minimize
 from fit3 import *
@@ -23,7 +23,7 @@ def past_gen(wm,al,ga,S,sink,x0=0.0,zstart=1e9):
     o=np.array(out); z=np.expm1(U)
     return np.sqrt(o[:,0]+OR*(1+z)**4+o[:,1]), o
 def make(S,sink,mode='src',zstart=1e9,tail=None):
-    """mode 'src': p=(wm,wb,ln alfa,ln gamma);  mode 'ini': nessuna sorgente, p=(wm,wb,ln x_iniziale,ln gamma)."""
+    """mode 'src': p=(wm,wb,ln alpha,ln gamma);  mode 'ini': no source, p=(wm,wb,ln x_initial,ln gamma)."""
     def f(p):
         ga=math.exp(p[3]) if len(p)>3 else 0.0
         if mode=='src':
@@ -51,26 +51,26 @@ GRID=[(a,g) for a in (-6.5,-4.0,-1.5) for g in (-3.0,-1.0)]
 if __name__=='__main__':
     R=json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'results3.json'))); L=R['LCDM']['chi2']; out={}
     stel=lambda o: psi_o(o)*o**3
-    def tail_inf(wm):   # spazio creato prima di z=30 se la sorgente viene estrapolata all'infinito (dominio della materia)
+    def tail_inf(wm):   # space created before z=30 if the source is extrapolated to infinity (matter domination)
         from scipy.integrate import quad
         return quad(lambda o: psi_o(o)*o**0.5,1+ZMAX,np.inf)[0]/math.sqrt(wm)
     cases=[
-     ('stellare, pozzo prop.',            make(stel,'prop'),4),
-     ('stellare, pozzo costante',         make(stel,'const'),4),
-     ('stellare, pozzo ∝ massa accumulata',make(stel,'cum'),4),
-     ('nessuna sorgente: vuoto iniziale + pozzo prop.',   make(stel,'prop','ini'),4),
-     ('nessuna sorgente: vuoto iniziale + pozzo costante',make(stel,'const','ini'),4),
-     ('nessuna sorgente: vuoto iniziale + pozzo ∝ massa stellare',make(stel,'cum','ini'),4),
-     ('sorgente costante nel tempo (p=0), pozzo prop.',   make(lambda o:1.0,'prop'),4),
-     ('sorgente costante nel tempo (p=0), pozzo costante',make(lambda o:1.0,'const'),4),
-     ('sorgente ∝ (1+z)^1, pozzo prop.',  make(lambda o:o,'prop'),4),
-     ('sorgente ∝ (1+z)^2, pozzo prop.',  make(lambda o:o*o,'prop'),4),
-     ('sorgente ∝ densita\' di materia (1+z)^3, pozzo prop.',make(lambda o:o**3,'prop'),4),
-     ('stellare con picco anticipato (z~2.6), pozzo ∝ massa', make(lambda o:psi_o(o,3.6)*o**3,'cum'),4),
-     ('stellare con picco ritardato (z~1.2), pozzo ∝ massa',  make(lambda o:psi_o(o,2.2)*o**3,'cum'),4),
-     ('E: stellare, sorgente attiva solo da z<10, pozzo ∝ massa', make(stel,'cum',zstart=10),4),
-     ('E: stellare, sorgente attiva solo da z<20, pozzo ∝ massa', make(stel,'cum',zstart=20),4),
-     ('E: stellare, estrapolata fino a z infinito, pozzo ∝ massa',make(stel,'cum',tail=tail_inf),4),
+     ('stellar, sink prop.',            make(stel,'prop'),4),
+     ('stellar, constant sink',         make(stel,'const'),4),
+     ('stellar, sink ∝ accumulated mass',make(stel,'cum'),4),
+     ('no source: initial vacuum + sink prop.',   make(stel,'prop','ini'),4),
+     ('no source: initial vacuum + constant sink',make(stel,'const','ini'),4),
+     ('no source: initial vacuum + sink ∝ stellar mass',make(stel,'cum','ini'),4),
+     ('source constant in time (p=0), sink prop.',   make(lambda o:1.0,'prop'),4),
+     ('source constant in time (p=0), constant sink',make(lambda o:1.0,'const'),4),
+     ('source ∝ (1+z)^1, sink prop.',  make(lambda o:o,'prop'),4),
+     ('source ∝ (1+z)^2, sink prop.',  make(lambda o:o*o,'prop'),4),
+     ('source ∝ matter density (1+z)^3, sink prop.',make(lambda o:o**3,'prop'),4),
+     ('stellar with earlier peak (z~2.6), sink ∝ mass', make(lambda o:psi_o(o,3.6)*o**3,'cum'),4),
+     ('stellar with later peak (z~1.2), sink ∝ mass',  make(lambda o:psi_o(o,2.2)*o**3,'cum'),4),
+     ('E: stellar, source active only at z<10, sink ∝ mass', make(stel,'cum',zstart=10),4),
+     ('E: stellar, source active only at z<20, sink ∝ mass', make(stel,'cum',zstart=20),4),
+     ('E: stellar, extrapolated to infinite z, sink ∝ mass',make(stel,'cum',tail=tail_inf),4),
      ('E: stellare, calo piu\' ripido ad alto z (5.6->6.6)', make(lambda o:psi_o(o,2.9,6.6)*o**3,'cum'),4),
      ('E: stellare, calo meno ripido ad alto z (5.6->4.6)',  make(lambda o:psi_o(o,2.9,4.6)*o**3,'cum'),4),
     ]
@@ -80,16 +80,16 @@ if __name__=='__main__':
         xi=lambda zz: float(np.interp(math.log1p(zz),U[::-1],o[::-1,1]))
         rr=[xi(zz)/xi(0) for zz in (0.5,1,2)]
         out[name]=dict(p=[float(a) for a in b.x],chi2=float(b.fun),d=float(b.fun-L),h=hh,Om0=float(o[-1,0]/hh**2),xr=rr)
-        print('%-62s chi2 %.2f  (da LCDM %+.2f)  h %.3f  Om0 %.3f  x(z)/x(0) a z=0.5,1,2: %.2f %.2f %.2f'%(name,b.fun,b.fun-L,hh,o[-1,0]/hh**2,*rr),flush=True)
+        print('%-62s chi2 %.2f  (vs LCDM %+.2f)  h %.3f  Om0 %.3f  x(z)/x(0) at z=0.5,1,2: %.2f %.2f %.2f'%(name,b.fun,b.fun-L,hh,o[-1,0]/hh**2,*rr),flush=True)
     json.dump(out,open('orologi.json','w'),indent=1,ensure_ascii=False)
-    # ---- Controllo F: bilancio dell'energia per il fit stellare con pozzo ∝ massa accumulata
-    p=out['stellare, pozzo ∝ massa accumulata']['p']; al=math.exp(p[2]); ga=math.exp(p[3]); f=make(stel,'cum'); e,o=f(p); hh=float(e[-1])
-    M0=o[-1,2]; conv=al*M0                 # energia tolta alla materia per volume comovente (unita' omega)
-    stelle=0.015*M0*9.7779e9/2.775e11      # massa di stelle formata per volume comovente (unita' omega), Madau-Dickinson
+    # ---- Check F: energy budget for the stellar fit with sink ∝ accumulated mass
+    p=out['stellar, sink ∝ accumulated mass']['p']; al=math.exp(p[2]); ga=math.exp(p[3]); f=make(stel,'cum'); e,o=f(p); hh=float(e[-1])
+    M0=o[-1,2]; conv=al*M0                 # energy removed from matter per comoving volume (omega units)
+    stelle=0.015*M0*9.7779e9/2.775e11      # stellar mass formed per comoving volume (omega units), Madau-Dickinson
     z=np.expm1(U); a3=(1+z)**-3
-    back=np.trapezoid(ga*o[:,2]*a3/(-e), U) if hasattr(np,'trapezoid') else np.trapz(ga*o[:,2]*a3/(-e),U)   # energia restituita dal pozzo: int sink a^3 dt, dt=-du/E
-    print('\nF) bilancio per volume comovente, in frazione della densita\' critica di oggi:')
-    print('   materia iniziale %.4f | stelle formate %.4f | materia convertita in spazio dalla sorgente %.4f (%.1f%% della materia)'%(p[0]/hh**2,stelle/hh**2,conv/hh**2,100*conv/p[0]))
-    print('   energia restituita alla materia dal pozzo %.4f | spazio in piu\' oggi %.3f | materia oggi %.3f'%(back/hh**2,o[-1,1]/hh**2,o[-1,0]/hh**2))
-    print('   kg di materia convertiti in spazio per ogni kg di stelle formate: %.2f'%(conv/stelle))
-    for diss in (0.0010,0.0022,0.0035): print('   se ogni kg di stelle dissipa %.4f c^2: fattore di innesco = %.0f'%(diss,conv/stelle/diss))
+    back=np.trapezoid(ga*o[:,2]*a3/(-e), U) if hasattr(np,'trapezoid') else np.trapz(ga*o[:,2]*a3/(-e),U)   # energy returned by the sink: int sink a^3 dt, dt=-du/E
+    print('\nF) budget per comoving volume, as a fraction of the critical density today:')
+    print('   initial matter %.4f | stars formed %.4f | matter converted into space by the source %.4f (%.1f%% of matter)'%(p[0]/hh**2,stelle/hh**2,conv/hh**2,100*conv/p[0]))
+    print('   energy returned to matter by the sink %.4f | extra space today %.3f | matter today %.3f'%(back/hh**2,o[-1,1]/hh**2,o[-1,0]/hh**2))
+    print('   kg of matter converted into space per kg of stars formed: %.2f'%(conv/stelle))
+    for diss in (0.0010,0.0022,0.0035): print('   if each kg of stars dissipates %.4f c^2: trigger factor = %.0f'%(diss,conv/stelle/diss))

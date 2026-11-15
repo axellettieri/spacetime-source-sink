@@ -1,13 +1,13 @@
-"""Esperimento 4: materia ed eventi sul grafo senza coordinate, con il conto esatto dell'energia.
-Spazio = rete di triangoli chiusa (superficie di una sfera), si parte dal grafo piu' piccolo possibile: 4 vertici ("singolarita'").
-- NP particelle calde, tutte nei 4 vertici iniziali. Ogni particella salta a un vertice vicino con probabilita' ~ energia/massa.
-- EVENTO: due oggetti nello stesso vertice. Perdono una frazione (1-C) della loro energia termica; quell'energia diventa SPAZIO:
-  un vertice nuovo ogni EPS di energia. Con probabilita' PM i due si fondono in una massa unica.
-- ASSORBIMENTO: ogni oggetto toglie vertici vicini al ritmo G per unita' di massa e ne riprende l'energia (EPS per vertice).
-  La materia che stava nel vertice tolto cade sull'oggetto.
-- RILASSAMENTO: scambi di lati attorno ai vertici toccati, verso la rete regolare.
-Nulla si crea e nulla si distrugge: massa totale ed energia totale (termica + spazio) sono conservate esattamente.
-Uso: python esperimento4.py NP EPS C PM G passi [seme]"""
+"""Experiment 4: matter and events on the graph without coordinates, with exact energy bookkeeping.
+Space = closed network of triangles (surface of a sphere), starting from the smallest possible graph: 4 vertices ("singularity").
+- NP hot particles, all in the 4 initial vertices. Each particle jumps to a neighbouring vertex with probability ~ energy/mass.
+- EVENT: two objects in the same vertex. They lose a fraction (1-C) of their thermal energy; that energy becomes SPACE:
+  one new vertex per EPS of energy. With probability PM the two merge into a single mass.
+- ABSORPTION: each object removes neighbouring vertices at rate G per unit mass and takes back their energy (EPS per vertex).
+  The matter that was in the removed vertex falls onto the object.
+- RELAXATION: edge flips around the touched vertices, towards the regular network.
+Nothing is created and nothing is destroyed: total mass and total energy (thermal + space) are conserved exactly.
+Usage: python esperimento4.py NP EPS C PM G steps [seed]"""
 import random, math, sys, time
 from esperimento3 import Rete
 class Sfera(Rete):
@@ -15,7 +15,7 @@ class Sfera(Rete):
         s.tri={}; s.edge={}; s.nbr={v:set() for v in range(4)}; s.nt=0; s.nv=4
         for t in ((0,1,2),(0,3,1),(0,2,3),(1,3,2)): s.add(*t)
     def togli(s,v):
-        """toglie il vertice v (prima lo porta a 3 vicini con scambi di lati). False se non si puo'."""
+        """removes vertex v (first brings it to 3 neighbours with edge flips). False if not possible."""
         if len(s.nbr)<=4: return False
         guard=0
         while len(s.nbr[v])>3:
@@ -28,7 +28,7 @@ class Sfera(Rete):
                 s.add(v,d,c); s.add(d,u,c); ok=True; break
             guard+=1
             if not ok or guard>200: return False
-        p=next(iter(s.nbr[v])); q=s.opp(v,p)            # triangolo (v,p,q)
+        p=next(iter(s.nbr[v])); q=s.opp(v,p)            # triangle (v,p,q)
         r=[x for x in s.nbr[v] if x!=p and x!=q][0]
         if len(s.nbr[p])<=3 or len(s.nbr[q])<=3 or len(s.nbr[r])<=3: return False
         s.rem(s.edge[(v,p)]); s.rem(s.edge[(v,q)]); s.rem(s.edge[(v,r)])
@@ -60,12 +60,12 @@ def esegui(NP=300,EPS=0.02,C=0.9,PM=0.05,G=0.0005,passi=20000,seme=1,RF=20,TG=0.
         if V>vmax: vmax=V
         if V<=4 and len(ogg)==1 and t>10: break
         if verbose and t%max(1,passi//20)==0:
-            print('passo %6d: vertici %6d, oggetti %4d, massa massima %4d, energia termica %.1f + spazio %.1f = %.1f, eventi %d, dimensione %.2f  [%.0f s]'%(t,V,len(ogg),max(m[i] for i in ogg),sum(e[i] for i in ogg),(V-4)*EPS+resto,sum(e[i] for i in ogg)+(V-4)*EPS+resto,ev,dimensione(R),time.time()-t0),flush=True)
-        # 1) moto
+            print('step %6d: vertices %6d, objects %4d, maximum mass %4d, thermal energy %.1f + space %.1f = %.1f, events %d, dimension %.2f  [%.0f s]'%(t,V,len(ogg),max(m[i] for i in ogg),sum(e[i] for i in ogg),(V-4)*EPS+resto,sum(e[i] for i in ogg)+(V-4)*EPS+resto,ev,dimensione(R),time.time()-t0),flush=True)
+        # 1) motion
         for i in ogg:
             if random.random()<min(0.5,0.5*e[i]/m[i]):
                 v=pos[i]; w=random.choice(tuple(R.nbr[v])); occ[v].remove(i); occ.setdefault(w,[]).append(i); pos[i]=w
-        # 2) eventi
+        # 2) events
         toccati=[]
         for v in [v for v,l in occ.items() if len(l)>=2]:
             l=occ[v]; i,j=l[0],l[1]; ev+=1
@@ -77,9 +77,9 @@ def esegui(NP=300,EPS=0.02,C=0.9,PM=0.05,G=0.0005,passi=20000,seme=1,RF=20,TG=0.
             if random.random()<PM:
                 m[i]+=m[j]; e[i]+=e[j]; vivo[j]=False; l.remove(j)
             elif nuovi:
-                w=nuovi[-1]; l.remove(j); occ[w].append(j); pos[j]=w        # lo spazio creato separa i due
+                w=nuovi[-1]; l.remove(j); occ[w].append(j); pos[j]=w        # created space separates the two
             toccati+=nuovi+[v]
-        # 3) assorbimento
+        # 3) absorption
         for i in ogg:
             if not vivo[i]: continue
             k=G*m[i]; n=int(k)+(random.random()<k-int(k))
@@ -95,9 +95,9 @@ def esegui(NP=300,EPS=0.02,C=0.9,PM=0.05,G=0.0005,passi=20000,seme=1,RF=20,TG=0.
     res=dict(storia=storia,vmax=vmax,V=V,oggetti=len(ogg),massa=sum(m[i] for i in ogg),energia=sum(e[i] for i in ogg)+(V-4)*EPS+resto,E0=Etot0,passi=t,eventi=ev)
     if verbose:
         j=max(range(len(storia)),key=lambda q:storia[q][1])
-        print('INIZIO: 4 vertici, %d oggetti, massa %d, energia %.1f'%(NP,NP,Etot0))
-        print('MASSIMO: %d vertici al passo %d (%d oggetti)'%(storia[j][1],storia[j][0],storia[j][2]))
-        print('FINE (passo %d): %d vertici, %d oggetti, massa %d, energia %.1f (termica %.1f, spazio %.1f)'%(t,V,len(ogg),res['massa'],res['energia'],sum(e[i] for i in ogg),(V-4)*EPS+resto))
+        print('START: 4 vertices, %d objects, mass %d, energy %.1f'%(NP,NP,Etot0))
+        print('MAXIMUM: %d vertices at step %d (%d objects)'%(storia[j][1],storia[j][0],storia[j][2]))
+        print('END (step %d): %d vertices, %d objects, mass %d, energy %.1f (thermal %.1f, space %.1f)'%(t,V,len(ogg),res['massa'],res['energia'],sum(e[i] for i in ogg),(V-4)*EPS+resto))
     return res
 if __name__=='__main__':
     a=sys.argv[1:]; f=lambda k,d,ty: ty(a[k]) if len(a)>k else d

@@ -1,6 +1,6 @@
 #!/bin/bash
-# Catena completa delle incertezze con l'orologio emergente (Planck completo + DESI + Pantheon+), poi il riassunto.
-# Se si interrompe, rilanciare lo stesso comando: riprende dall'ultimo salvataggio (ogni 20 passi).
+# Full uncertainty chain with the emergent clock (full Planck + DESI + Pantheon+), then the summary.
+# If interrupted, rerun the same command: it resumes from the last save (every 20 steps).
 set -e
 NP=${NP:-16}; PASSI=${PASSI:-3000}
 python mcmc_orologio.py fine_L250_s1.json 10 $PASSI $NP
