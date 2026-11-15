@@ -1,6 +1,6 @@
 # Space created by events instead of dark energy
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24250556.svg)](https://doi.org/10.5281/zenodo.24250556)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24250555.svg)](https://doi.org/10.5281/zenodo.24250555)
 
 **A source–sink cosmological model, tested against Planck, DESI DR2 and supernova data**
 
@@ -33,7 +33,7 @@ The model turns this idea into two terms inside general relativity:
 | `paper/articolo_it.md` | The article (Italian, original version) |
 | `code/` | All scripts: data fits, full Planck with CAMB, MCMC, GPU N-body simulations, graph experiments (`code/grafo/`) |
 
-How to run the code is described in `code/LEGGIMI.txt` (Italian). Script names and comments are in Italian.
+How to run the code is described in [`code/README.md`](code/README.md) (English) and `code/LEGGIMI.txt` (Italian). Script names and comments are in Italian.
 
 Quick start:
 
@@ -59,6 +59,6 @@ The analysis code and the text were developed with the assistance of an AI model
 
 ## How to cite
 
-Lettieri, P. A. (2026). *Space created by events instead of dark energy: a source–sink cosmological model confronted with the data* (v1.0). Zenodo. https://doi.org/10.5281/zenodo.24250556
+Lettieri, P. A. (2026). *Space created by events instead of dark energy: a source–sink cosmological model confronted with the data* Zenodo. https://doi.org/10.5281/zenodo.24250555 (all versions; v1.0: https://doi.org/10.5281/zenodo.24250556)
 
 See also [CITATION.cff](CITATION.cff).
