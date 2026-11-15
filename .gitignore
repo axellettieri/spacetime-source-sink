@@ -1,0 +1,6 @@
+code/data/
+__pycache__/
+*.npy
+*.npz.tmp
+code/planck-lite-py/
+code/results3*.json

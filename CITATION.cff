@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Space created by events instead of dark energy: a source–sink cosmological model confronted with the data"
+authors:
+  - family-names: Lettieri
+    given-names: Pasquale Axel
+    affiliation: "Independent researcher, Novedrate (CO), Italy"
+type: software
+license: MIT
+repository-code: "https://github.com/axellettieri/spacetime-source-sink"
+date-released: 2026-11-15
+version: "1.0"
+keywords:
+  - cosmology
+  - dark energy
+  - interacting dark energy
+  - interacting vacuum
+  - DESI DR2
+  - causal sets
+  - N-body simulation
+abstract: >-
+  Spacetime as a causal graph of events: events create space, masses absorb it. This replaces dark energy with a
+  source–sink interacting-vacuum model, which fits Planck 2018, DESI DR2 and supernova data better than ΛCDM
+  (nominal 2.9–3.6 sigma) with one parameter fewer than w0wa, and predicts a line in the (w0, wa) plane.

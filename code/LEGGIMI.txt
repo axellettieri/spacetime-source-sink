@@ -1,0 +1,71 @@
+Modello sorgente-pozzo: script di confronto con i dati
+Versione 3 (12 novembre 2026: aggiunti altri campioni di supernovae)
+
+Requisiti: Python 3.10 o successivo; numpy e scipy per tutto;
+           emcee per mcmc.py e mcmc_cmb.py; camb per cmb_full.py e mcmc_cmb.py;
+           astropy e pandas per ambiente.py.
+
+Cosa cambia rispetto alla versione 1
+  - Supernovae: selezione ufficiale Pantheon+ (1590 invece di 1580) e fattore di redshift eliocentrico.
+  - Orizzonte sonoro: formula corretta in fit3.py (prima +0,1%); in cmb_full.py si usa il valore esatto di CAMB.
+  - Fondo cosmico: correzione dell'effetto di lente per la versione "diffusa" del modello (opzione U, predefinita).
+  - Script nuovi: orologi.py, controllo_crescita.py. File nuovo: nucleo_lente.npz (usato da cmb_full.py).
+  - mcmc_cmb.py salva in catena_v2_<modello>.npy: non riprende le catene create dalla versione 1.
+
+Ordine di esecuzione
+  python scarica_dati.py                 una volta sola (circa 210 MB)
+  python fit3.py                         fit principale: supernovae + DESI + prior compressi di Planck (30 s); crea results3.json
+  python profile.py                      barre d'errore rapide sui tempi di inversione e collasso (1 min)
+  python mcmc.py cum_n3 2500             campionamento completo con i prior compressi (5 min)
+  python growth.py                       crescita delle strutture (10 s)
+  python controllo_crescita.py           sorgente del potenziale gravitazionale nelle tre versioni del modello (10 s)
+  python orologi.py                      sorgenti alternative all'attivita' stellare, bilancio dell'energia (10 min)
+  python shells.py                       test dei gusci di distanza (10 s)
+  python ambiente.py                     test dell'ambiente con la mappa 2M++ (1 min)
+  python cmb_full.py LCDM U              fondo cosmico completo, LCDM (10-25 min)
+  python cmb_full.py cum_n3 U            fondo cosmico completo, modello con pozzo proporzionale alla massa accumulata (20-30 min)
+  python cmb_full.py prop_n3 U           lo stesso, pozzo proporzionale al livello
+  python cmb_full.py w0wa U              lo stesso, curva empirica w0wa
+  python mcmc_cmb.py cum_n3 3000 8       campionamento lungo con 8 processi (circa 14 ore; si puo' interrompere e riprendere)
+
+Altri campioni di supernovae (variabile d'ambiente SNSET = union3, desy5 oppure dovekie; senza, si usa Pantheon+)
+  Linux:       SNSET=union3 python fit3.py ; SNSET=union3 python cmb_full.py LCDM U ; SNSET=union3 python cmb_full.py cum_n3 U
+  PowerShell:  $env:SNSET='union3'; python fit3.py; python cmb_full.py LCDM U; python cmb_full.py cum_n3 U; Remove-Item Env:SNSET
+  I risultati finiscono in results3_<campione>.json e cmb2_<modello>_U_<campione>.json.
+
+  fit.py e fit2.py sono i primi fit esplorativi (solo supernovae + DESI); sono superati da fit3.py e restano per riferimento.
+
+profile.py, mcmc.py, growth.py, controllo_crescita.py e orologi.py leggono results3.json: eseguire prima fit3.py.
+Se scarica_dati.py non riesce a scaricare planck-lite-py: git clone https://github.com/heatherprince/planck-lite-py  (nella stessa cartella)
+
+=== UNIVERSO 3D SU GPU (14 novembre) ===
+universo3d.py  simulazione a N corpi con gravita': gli eventi (materia che collassa) creano spazio, le masse lo assorbono.
+               L'orologio degli eventi non e' imposto: lo produce la simulazione. Serve CuPy (GPU); senza, usa NumPy (prove piccole).
+adatta3d.py    adatta ai dati (supernovae, DESI, Planck) il modello con l'orologio della simulazione; scrive parametri3d.json.
+corsa3d.sh     catena completa: orologio -> adattamento -> corsa diffusa -> corse locali (300,100,30,10 Mpc) -> futuro.
+riassunto3d.py tabella finale.
+Vanno lanciati nella stessa cartella di fit3.py (servono i dati gia' scaricati con scarica_dati.py).
+Prova rapida (pochi minuti):  N=128 L=400 P=200 ./corsa3d.sh     Corsa vera:  ./corsa3d.sh   (512^3 particelle, circa 9 GB di VRAM)
+
+=== AGGIUNTE DEL 14 NOVEMBRE (pomeriggio) ===
+futuro2.sh     futuro con l'assorbimento del modello originale (gia' eseguito: inversione fra 29 miliardi di anni).
+collasso.sh    come futuro2 ma prosegue oltre l'inversione fino al collasso (opzione --collasso di universo3d.py). Circa 1-2 ore su una V100.
+scala_fine.sh  per il server con 4 GPU: orologio degli eventi a risoluzione fine (scatole da 500, 250, 125 Mpc) e adattamento ai dati.
+               Con meno GPU: NGPU=1 ./scala_fine.sh (le corse vanno in fila). Circa 1 ora per corsa.
+
+=== 15 NOVEMBRE ===
+cmb_orologio.py  Planck completo + DESI + supernovae con l'orologio emergente (file .json di universo3d.py e soglia).
+                 Esempio: python cmb_orologio.py fine_L250_s1.json 10 500     (circa 30-40 minuti su un core; altri campioni: SNSET=union3 ...)
+grafo/esperimento3-5.py  grafo senza coordinate: sparpagliamento, materia ed energia, decadimento e cicli.
+traccia_w0wa.py  la linea obbligata nel piano (w0, wa) prevista dal modello: python traccia_w0wa.py [cum|prop|const]   (circa 1 minuto)
+grafo/esperimento6.py, esperimento7.py  velocita' massima sul grafo e orologio in moto.
+grafo/esperimento8.py  accorciamento di un oggetto in moto tenuto insieme da segnali (regola del radar).
+                       Esempio: python esperimento8.py 300000 200 1 0.12 0.2,0.4,0.6,0.8   (circa 5 minuti; serve scipy)
+                       Oggetto piu' grande: python esperimento8.py 1200000 150 1 0.12 0.4,0.6,0.8   (circa 15-20 minuti)
+
+=== CATENA DELLE INCERTEZZE CON L'OROLOGIO EMERGENTE (15 novembre) ===
+catena_orologio.sh   lancia mcmc_orologio.py (3000 passi, 32 camminatori) e poi analizza_orologio.py.
+                     NP = processi in parallelo (16 sul Ryzen 1700). Riprende da solo se interrotto.
+                     Risultato in analisi_orologio.txt: intervalli di errore dei parametri, H0, materia oggi, punto (w0, wa).
+Servono nella cartella: dati, planck-lite-py e CAMB come per mcmc_cmb.py; fine_L250_s1.json e i file .json di partenza sono nell'archivio.
+Altri campioni di supernovae (facoltativo): SNSET=union3 python mcmc_orologio.py fine_L250_s1.json 10 3000 16

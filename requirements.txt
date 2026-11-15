@@ -1,0 +1,7 @@
+numpy
+scipy
+emcee
+camb
+astropy
+pandas
+# optional, for GPU N-body simulations (universo3d.py): cupy-cuda12x
