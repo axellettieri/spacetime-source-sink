@@ -4,7 +4,7 @@
 
 **A source–sink cosmological model, tested against Planck, DESI DR2 and supernova data**
 
-Pasquale Axel Lettieri · Independent researcher, Novedrate (CO), Italy
+Pasquale Axel Lettieri ([ORCID 0009-0001-0756-6467](https://orcid.org/0009-0001-0756-6467)) · Independent researcher, Novedrate (CO), Italy
 
 ## The idea
 

@@ -1,6 +1,6 @@
 # Spazio creato dagli eventi al posto dell'energia oscura: un modello sorgente–pozzo e il confronto con i dati
 
-**Pasquale Axel Lettieri** · Ricercatore indipendente, Novedrate (CO), Italia · 15 novembre 2026 · bozza
+**Pasquale Axel Lettieri** ([ORCID 0009-0001-0756-6467](https://orcid.org/0009-0001-0756-6467)) · Ricercatore indipendente, Novedrate (CO), Italia · 15 novembre 2026 · bozza
 
 ## Riassunto
 
