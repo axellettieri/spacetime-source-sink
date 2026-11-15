@@ -1,5 +1,7 @@
 # Space created by events instead of dark energy
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24250556.svg)](https://doi.org/10.5281/zenodo.24250556)
+
 **A source–sink cosmological model, tested against Planck, DESI DR2 and supernova data**
 
 Pasquale Axel Lettieri · Independent researcher, Novedrate (CO), Italy
@@ -57,4 +59,6 @@ The analysis code and the text were developed with the assistance of an AI model
 
 ## How to cite
 
-See [CITATION.cff](CITATION.cff). A DOI is assigned by Zenodo for each release.
+Lettieri, P. A. (2026). *Space created by events instead of dark energy: a source–sink cosmological model confronted with the data* (v1.0). Zenodo. https://doi.org/10.5281/zenodo.24250556
+
+See also [CITATION.cff](CITATION.cff).
