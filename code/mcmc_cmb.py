@@ -15,7 +15,8 @@ def lnp(p):
 if __name__=='__main__':
     x0=np.array(START[name]); sg=1.5*np.array(SCALE[name]); nd=len(x0); nw=32
     f=os.path.join(HERE,f'catena_v2_{name}.npy'); rng=np.random.default_rng(2)
-    if os.path.exists(f): old=np.load(f); p0=old[-1,:,:nd]; print('resuming from',f,old.shape)
+    if os.path.exists(f): old=np.load(f); p0=old[-1,:,:nd]; print('resuming from',f,old.shape); nst-=old.shape[0]  # steps = total chain length
+    if nst<=0: sys.exit('chain already has the requested number of steps')
     else: old=None; p0=x0+rng.normal(size=(nw,nd))*sg
     with Pool(npr) as pool:
         s=emcee.EnsembleSampler(nw,nd,lnp,pool=pool); t0=time.time()

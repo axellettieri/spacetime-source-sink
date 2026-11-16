@@ -24,7 +24,8 @@ if __name__=='__main__':
     x0=np.array(json.load(open(start))['p']) if os.path.exists(start) else np.array([0.1424,0.0224,-2.18,0.38,3.0497,0.9667,0.0584])
     sg=np.array([6e-4,1.2e-4,0.04,0.10,0.008,0.004,0.006]); nd=len(x0)
     f=os.path.join(co.HERE,'catena_orologio_%s_%g%s.npy'%(nome,soglia,suf)); rng=np.random.default_rng(3)
-    if os.path.exists(f): old=np.load(f); p0=old[-1,:,:nd]; print('resuming from',f,old.shape,flush=True)
+    if os.path.exists(f): old=np.load(f); p0=old[-1,:,:nd]; print('resuming from',f,old.shape,flush=True); nst-=old.shape[0]  # steps = total chain length
+    if nst<=0: sys.exit('chain already has the requested number of steps')
     else: old=None; p0=x0+rng.normal(size=(nw,nd))*sg
     print('start:',np.round(x0,5).tolist(),'| walkers',nw,'| processes',npr,flush=True)
     with Pool(npr) as pool:
