@@ -2,11 +2,25 @@
   "title": "Space created by events instead of dark energy: a source–sink cosmological model confronted with the data",
   "upload_type": "software",
   "creators": [
-    {"name": "Lettieri, Pasquale Axel", "orcid": "0009-0001-0756-6467", "affiliation": "Independent researcher, Novedrate (CO), Italy"}
+    {
+      "name": "Lettieri, Pasquale Axel",
+      "orcid": "0009-0001-0756-6467",
+      "affiliation": "Independent researcher, Novedrate (CO), Italy"
+    }
   ],
-  "description": "<p>Spacetime as a causal graph of events: events create space, masses absorb it. This replaces dark energy with a source–sink interacting-vacuum model. With full Planck 2018, DESI DR2 and Pantheon+ it improves the ΛCDM χ² by 8.3–8.8 points, like w0wa but with one parameter fewer (nominal 2.9–3.6 σ depending on the supernova sample). Two independent event clocks (observed star formation; N-body / Press–Schechter collapse) give the same fit. The model predicts a line in the (w0, wa) plane and, if absorption continues, a recollapse in about 45–50 billion years. Includes the article (English and Italian), all analysis code, GPU N-body simulations and exploratory graph experiments.</p><p>Draft, not peer reviewed. Developed with the assistance of an AI model (Claude, Anthropic); see the README.</p>",
+  "description": "<p>Spacetime as a causal graph of events: events create space, masses absorb it. This replaces dark energy with a source–sink interacting-vacuum model. With full Planck 2018, DESI DR2 and Pantheon+ it improves the ΛCDM χ² by 8.3–8.8 points, like w0wa but with one parameter fewer (nominal 2.9–3.6 σ depending on the supernova sample). Two independent event clocks (observed star formation; N-body / Press–Schechter collapse) give the same fit. The model predicts a line in the (w0, wa) plane and, if absorption continues, a recollapse in about 45–50 billion years. The full uncertainty chain gives w0 = −0.84 ± 0.04 and wa = −0.61 ± 0.065. Version 1.1 adds numerical predictions for the full DESI survey and for Euclid (BAO distances, growth rate fσ8, lensing amplitude), deposited before those data were released. Includes the article (English and Italian), all analysis code, GPU N-body simulations and exploratory graph experiments.</p><p>Draft, not peer reviewed. Developed with the assistance of an AI model (Claude, Anthropic); see the README.</p>",
   "license": "MIT",
-  "keywords": ["cosmology", "dark energy", "interacting dark energy", "interacting vacuum", "DESI DR2", "causal sets", "N-body simulation", "big crunch"],
+  "keywords": [
+    "cosmology",
+    "dark energy",
+    "interacting dark energy",
+    "interacting vacuum",
+    "DESI DR2",
+    "causal sets",
+    "N-body simulation",
+    "big crunch"
+  ],
   "language": "eng",
-  "access_right": "open"
+  "access_right": "open",
+  "version": "1.1"
 }

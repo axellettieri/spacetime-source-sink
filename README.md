@@ -20,7 +20,8 @@ The model turns this idea into two terms inside general relativity:
 - With full Planck 2018, DESI DR2 and Pantheon+, the model improves the ΛCDM χ² by 8.3–8.8 points. That is as much as the w0wa parametrization, with one parameter fewer.
 - The nominal preference is 2.9–3.6 σ, depending on the supernova sample (Pantheon+, Union3, DES-Dovekie).
 - Two independent event clocks give the same fit: the observed star-formation history, and a clock computed from N-body simulations and Press–Schechter theory.
-- **Testable prediction.** The model is forced onto a line in the (w0, wa) plane: wa ≈ −0.41 − 1.61 (1 + w0).
+- **Testable prediction.** The model is forced onto a line in the (w0, wa) plane: wa ≈ −0.41 − 1.61 (1 + w0). The full uncertainty chain gives w0 = −0.84 ± 0.04, wa = −0.61 ± 0.065.
+- **Predictions for full DESI and Euclid** were computed and deposited on 17 November 2026, before those data were released: BAO distances, growth rate fσ8 and lensing amplitude (section 4.10 of the article, `code/results/`).
 - **Future.** If absorption continues, expansion stops in about 30 billion years and the universe recollapses.
 - **Negative results.** The model does not explain the Hubble tension, and its local version is excluded.
 - **Graph experiments.** Exploratory two-dimensional toys show expansion–collapse cycles with conserved energy, and emergent time dilation and length contraction.

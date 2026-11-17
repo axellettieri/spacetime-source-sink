@@ -4,3 +4,4 @@ __pycache__/
 *.npz.tmp
 code/planck-lite-py/
 code/results3*.json
+!code/results/*.npy

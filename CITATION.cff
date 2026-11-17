@@ -9,8 +9,8 @@ authors:
 type: software
 license: MIT
 repository-code: "https://github.com/axellettieri/spacetime-source-sink"
-date-released: 2026-11-15
-version: "1.0"
+date-released: 2026-11-17
+version: "1.1"
 doi: 10.5281/zenodo.24250555
 keywords:
   - cosmology

@@ -12,7 +12,7 @@ If masses keep absorbing space after the space created by recent events is used 
 
 A series of exploratory numerical experiments on graphs shows that a local creation rule can produce a diffuse effect; that a closed energy budget yields cycles of expansion and collapse; and that a moving object made of internal signals slows its own time and contracts, as in relativity, with deviations that shrink as the object grows relative to the graph's grain. These experiments are two-dimensional toys and are not a derivation of the model.
 
-The analysis has not been independently verified.
+The model makes numerical predictions for the full DESI data and for Euclid, deposited before their release (section 4.10). The analysis has not been independently verified.
 
 ## 1. Introduction
 
@@ -165,6 +165,66 @@ Quick comparison (compressed Planck). In all four samples the point preferred by
 
 This is the prediction that upcoming data can falsify: when the uncertainty on wa drops below 0.1, the measured point must lie on the line. The direction along which current data are uncertain has a different slope (about −2.9), so the two lines diverge away from their crossing point, near w0 = −0.78.
 
+### 4.9 Uncertainties with the emergent clock
+
+A full Markov chain (emcee, 32 walkers, 7 parameters, 5040 steps) with the emergent clock from the fine-resolution simulation (250 Mpc box, threshold 10), the full Planck spectrum, DESI DR2 and Pantheon+ gives these intervals:
+
+| Quantity | Central value | 68% interval | 95% interval |
+|---|---|---|---|
+| χ² improvement over ΛCDM | −8.48 | | |
+| H0 (km/s/Mpc) | 67.9 | 67.3 – 68.6 | 66.7 – 69.4 |
+| Matter today (fraction) | 0.38 | 0.34 – 0.41 | 0.30 – 0.44 |
+| Equivalent w0 | −0.84 | −0.88 – −0.80 | −0.94 – −0.76 |
+| Equivalent wa | −0.61 | −0.67 – −0.54 | −0.73 – −0.46 |
+| ln γ (sink strength) | 0.32 | −0.10 – 0.58 | −1.33 – 0.78 |
+
+The model fixes wa with an uncertainty of about ±0.065, against about ±0.2 for free w0wa on the same data. The central point lies close to the line of section 4.8, which for w0 = −0.84 gives wa ≈ −0.67. Extending the chain from 3000 to 5040 steps changed the values by less than 0.01: the results are stable. The kept steps are 24 times the autocorrelation time, slightly fewer than the recommended 30–50; the central values are solid, the ends of the 95% intervals should be taken as indicative.
+
+### 4.10 Predictions for upcoming data: full DESI and Euclid
+
+The following predictions were computed on 17 November 2026, before the release of the cosmological results of the full five-year DESI survey and of Euclid DR1 (expected between late 2026 and 2027), and deposited with a certified date on Zenodo. They come from 400 parameter combinations drawn from the chain of section 4.9; for comparison, the ΛCDM model that best describes the same current data is shown.
+
+**The (w0, wa) point.** The model predicts w0 = −0.84 (−0.88 – −0.80) and wa = −0.61 (−0.67 – −0.54), on the line of section 4.8. A combined measurement that places wa outside this interval by more than twice its own uncertainty, or that brings the point back to ΛCDM (w0 = −1, wa = 0), rules the model out.
+
+**Baryon acoustic oscillation distances (DESI).** Ratios between distance and sound horizon r_d at the redshifts of the DESI samples. 68% intervals.
+
+| Sample | Quantity | Model | ΛCDM | Model − ΛCDM | DESI DR2 measured |
+|---|---|---|---|---|---|
+| BGS (z = 0.295) | DV/r_d | 7.915 (7.878 – 7.954) | 7.949 | −0.43% | 7.942 ± 0.076 |
+| LRG1 (z = 0.510) | DM/r_d | 13.271 (13.214 – 13.327) | 13.331 | −0.45% | 13.588 ± 0.168 |
+| LRG1 (z = 0.510) | DH/r_d | 22.400 (22.321 – 22.479) | 22.559 | −0.70% | 21.863 ± 0.429 |
+| LRG2 (z = 0.706) | DM/r_d | 17.420 (17.361 – 17.479) | 17.504 | −0.48% | 17.351 ± 0.180 |
+| LRG2 (z = 0.706) | DH/r_d | 19.979 (19.913 – 20.045) | 20.061 | −0.41% | 19.455 ± 0.334 |
+| LRG3+ELG1 (z = 0.934) | DM/r_d | 21.688 (21.627 – 21.751) | 21.780 | −0.42% | 21.576 ± 0.162 |
+| LRG3+ELG1 (z = 0.934) | DH/r_d | 17.514 (17.467 – 17.563) | 17.515 | −0.01% | 17.641 ± 0.201 |
+| ELG2 (z = 1.321) | DM/r_d | 27.781 (27.717 – 27.844) | 27.856 | −0.27% | 27.601 ± 0.325 |
+| ELG2 (z = 1.321) | DH/r_d | 14.130 (14.107 – 14.155) | 14.059 | +0.51% | 14.176 ± 0.225 |
+| QSO (z = 1.484) | DM/r_d | 29.987 (29.923 – 30.053) | 30.050 | −0.21% | 30.512 ± 0.764 |
+| QSO (z = 1.484) | DH/r_d | 12.967 (12.950 – 12.985) | 12.884 | +0.65% | 12.817 ± 0.518 |
+| Lya (z = 2.330) | DM/r_d | 38.980 (38.916 – 39.042) | 38.971 | +0.02% | 38.989 ± 0.532 |
+| Lya (z = 2.330) | DH/r_d | 8.709 (8.701 – 8.718) | 8.637 | +0.83% | 8.632 ± 0.101 |
+
+The model predicts shorter distances than ΛCDM up to z ≈ 1 (between −0.3 and −0.7%) and a longer radial distance DH at high redshift (+0.5% at z = 1.3, +0.8% at z = 2.3, in the Lyman-α forest of quasars).
+
+**Growth rate of structure, fσ8 (DESI and Euclid).**
+
+| Redshift | Model | ΛCDM | Model − ΛCDM |
+|---|---|---|---|
+| 0.29 | 0.464 (0.457 – 0.471) | 0.464 | −0.2% |
+| 0.51 | 0.469 (0.462 – 0.476) | 0.468 | +0.2% |
+| 0.71 | 0.461 (0.454 – 0.468) | 0.458 | +0.7% |
+| 0.93 | 0.442 (0.436 – 0.449) | 0.437 | +1.2% |
+| 1.00 | 0.436 (0.430 – 0.442) | 0.430 | +1.4% |
+| 1.20 | 0.415 (0.409 – 0.421) | 0.408 | +1.8% |
+| 1.40 | 0.393 (0.388 – 0.399) | 0.385 | +2.0% |
+| 1.65 | 0.367 (0.362 – 0.371) | 0.359 | +2.1% |
+
+The model predicts the same growth as ΛCDM up to z ≈ 0.5 and increasingly higher growth beyond, up to +2% at z = 1.65, in the range covered by Euclid.
+
+**Gravitational lensing.** The product σ8·Ωm, which sets the amplitude of the weak-lensing signal, is 0.251 (0.245 – 0.258) against 0.244 for ΛCDM (+3%). The amplitude σ8 of matter alone, instead, is much lower: 0.67 (0.62 – 0.73) against 0.81, because the matter returned by the sink is diffuse and dilutes the contrasts. The S8 value published by surveys is derived assuming ΛCDM, so it should not be compared directly with this σ8.
+
+**What can decide.** The differences from ΛCDM are small: less than 1% in the distances and up to 2% in the growth, comparable to the error of a single measured point. The decision will come from the combination of all points, i.e. the (w0, wa) point, and above all from full DESI and Euclid together. The final DESI data also include those of DR2, already used to fit the model: the fully independent test is Euclid, together with the new part of the DESI data.
+
 ## 5. The future of the expansion
 
 With the sink proportional to the accumulated mass, the model predicts that the expansion stops in about 30 billion years and that the universe recollapses. Two independent clocks give the same dates.
@@ -245,7 +305,7 @@ The starting hypothesis comes out partly confirmed and partly refuted. The confi
 Future work, in order of priority:
 
 1. Independent verification of the main calculations by a cosmologist.
-1. Full uncertainty chain with the emergent clock and the full Planck spectrum.
+1. Comparison of the predictions of section 4.10 with the full DESI data and with Euclid, as soon as they are released.
 1. Comparison with the integrated Sachs–Wolfe effect and with CMB lensing reconstruction.
 1. Emergent clock with a real halo finder, to fix the minimum mass without looking at the data.
 1. A causal set growing event by event in more dimensions, with matter made of chains of events: the step that would link the equations to the graph, and an open problem in research too.

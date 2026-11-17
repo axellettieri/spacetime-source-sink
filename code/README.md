@@ -90,6 +90,14 @@ Full Planck + DESI + supernovae with the clock from a simulation file and a coll
 - It needs the same data, planck-lite-py and CAMB as `mcmc_cmb.py`. `fine_L250_s1.json` and the starting `.json` files are included.
 - Other supernova samples (optional): `SNSET=union3 python mcmc_orologio.py fine_L250_s1.json 10 3000 16`
 
+### Predictions for full DESI and Euclid
+
+```
+python previsioni.py catena_orologio_fine_L250_s1_10.npy fine_L250_s1.json 10 400 16
+```
+
+Draws 400 parameter sets from the chain and computes what the model predicts for the full DESI survey and for Euclid: BAO distances D_M/r_d, D_H/r_d, D_V/r_d at the DESI redshifts, the growth rate fσ8, σ8 and σ8·Ωm. It compares them with the best-fit ΛCDM model and with the DESI DR2 measurements. About 4 minutes with 2 processes. The output is `previsioni_<clock>_<threshold>.json` (section 4.10 of the article).
+
 ## Graph experiments (`grafo/`)
 
 Exploratory toy models on graphs without coordinates (see section 6 of the article).
@@ -118,6 +126,9 @@ Example for experiment 8:
 | `fine_L250_s1.json` | Event clock from the fine-resolution simulation (250 Mpc box) |
 | `cmb_orologio_fine_L250_s1_10.json` | Full-Planck fit with that clock |
 | `nucleo_lente.npz` | Lensing kernel used by `cmb_full.py` |
+| `results/catena_orologio_fine_L250_s1_10.npy` | Uncertainty chain with the emergent clock (5040 steps, 32 walkers) |
+| `results/analisi_orologio.txt`, `results/derivati_orologio_*.json` | Chain summary: parameter intervals, H0, matter fraction, (w0, wa) |
+| `results/previsioni_fine_L250_s1_10.json`, `results/previsioni_output.txt` | Predictions for full DESI and Euclid (section 4.10) |
 
 ## Glossary of Italian names
 
