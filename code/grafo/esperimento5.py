@@ -17,7 +17,7 @@ Usage: python esperimento5.py NP EPS C PM G steps TC PF [seed]     [seed MCRIT T
 import random, math, sys, time
 from esperimento3 import Rete
 from esperimento4 import Sfera, dimensione
-def esegui(NP=300,EPS=0.02,C=0.9,PM=0.05,G=0.005,passi=400000,TC=0.9,PF=0.01,seme=1,MCRIT=0.0,TCRIT=0.0,RF=20,TG=0.3,verbose=True):
+def esegui(NP=300,EPS=0.02,C=0.9,PM=0.05,G=0.005,passi=400000,TC=0.9,PF=0.01,seme=1,MCRIT=0.0,TCRIT=0.0,RF=20,TG=0.3,verbose=True,osserva=None):
     random.seed(seme); R=Sfera()
     pos=[random.randrange(4) for _ in range(NP)]; m=[1]*NP; e=[1.0]*NP; vivo=[True]*NP
     occ={v:[] for v in range(4)}
@@ -34,6 +34,7 @@ def esegui(NP=300,EPS=0.02,C=0.9,PM=0.05,G=0.005,passi=400000,TC=0.9,PF=0.01,sem
         V=len(R.nbr); ogg=[i for i in range(len(vivo)) if vivo[i]]
         if t%max(1,passi//2000)==0:
             espazio=(V-4)*EPS+resto; storia.append((t,V,len(ogg),max(m[i] for i in ogg),sum(e[i] for i in ogg),espazio,ev))
+            if osserva: osserva(t,R,[(pos[i],m[i],e[i]) for i in ogg])   # optional measurements (esperimento9.py); does not change the dynamics
         if V>vmax: vmax=V
         if verbose and t%max(1,passi//20)==0:
             print('step %6d: vertices %6d, objects %4d, maximum mass %4d, thermal energy %.1f + space %.1f = %.1f, events %d, dimension %.2f  [%.0f s]'%(t,V,len(ogg),max(m[i] for i in ogg),sum(e[i] for i in ogg),(V-4)*EPS+resto,sum(e[i] for i in ogg)+(V-4)*EPS+resto,ev,dimensione(R),time.time()-t0),flush=True)
