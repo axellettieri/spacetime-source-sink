@@ -6,6 +6,7 @@ authors:
     given-names: Pasquale Axel
     orcid: "https://orcid.org/0009-0001-0756-6467"
     affiliation: "Independent researcher, Novedrate (CO), Italy"
+    email: "axellettieri83@gmail.com"
 type: software
 license: MIT
 repository-code: "https://github.com/axellettieri/spacetime-source-sink"

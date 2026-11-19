@@ -1,6 +1,6 @@
 # Space created by events instead of dark energy: a source–sink model confronted with the data
 
-**Pasquale Axel Lettieri** ([ORCID 0009-0001-0756-6467](https://orcid.org/0009-0001-0756-6467)) · Independent researcher, Novedrate (CO), Italy · 15 November 2026 · draft
+**Pasquale Axel Lettieri** ([ORCID 0009-0001-0756-6467](https://orcid.org/0009-0001-0756-6467)) · Independent researcher, Novedrate (CO), Italy · [axellettieri83@gmail.com](mailto:axellettieri83@gmail.com) · 15 November 2026 · draft
 
 ## Abstract
 
